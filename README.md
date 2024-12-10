@@ -1,22 +1,23 @@
 # RHICfSTARSim
-** RHICf+STAR simulation **
+**RHICf+STAR simulation**
 
-** This framework propagate the STAR simulation data into RHICf and STAR ZDC simulation **
+**This framework propagates the STAR simulation data into RHICf and STAR ZDC simulation**
 
 ---
 
-RHICfSTARSim is designed to compatible with StRHICfSimDst format data and STAR's scheduler.
+RHICfSTARSim is designed to be compatible with StRHICfSimDst format data and STAR's scheduler.
 
-Input file could need StRHICfSimDst format, HepMC format input to be updated.
+The input file could need StRHICfSimDst format (HepMC format input to be updated)
 
 ## Preparing installation
 1. ROOT
 2. GEANT4 with GDML (version recommended below 10.6)
 
 ## Installation
-1. Beforing the install, make sure the ROOT and GEANT4 library 
+1. Beforing the installation, make sure the ROOT and GEANT4 library 
 
 * Source to geant4
+  
 ```
 source /path/to/geant4/install/geant4.csh
 
@@ -29,12 +30,13 @@ ${ROOTSYS}
 ```
 
     * Note: If you are not working on STAR server system, you should make sure the ROOT library path with CMake option.
+    
     ```
         cmake -DROOTPATH=/path/to/ROOT/install
     ```
 
 
-2. Compiling
+2. Compile
 
 ```
 git clone https://github.com/ggfdsa10/RHICfSTARSim.git
@@ -52,7 +54,7 @@ make
 ```
 
 ## Input options
-Input options can insert as two type, argument, and text file.
+Input options can be inserted as two types, argument, and text file.
 
 ### Argument type
 
@@ -60,7 +62,7 @@ Input options can insert as two type, argument, and text file.
 
     * **STARSim** is default option 
 
-    * Avaliable mode
+    * Available mode
 
         * STARSim : STAR simulation propagating mode (needed StRHICfSimDst input)
 
@@ -72,9 +74,9 @@ Input options can insert as two type, argument, and text file.
 
 * **-r (RHICf run type)**
 
-    * If **STARSim** mode, run type set using input file autometically 
+    * If **STARSim** mode, run-type set using the input file automatically 
 
-    * Avaliable mode
+    * Available mode
 
         * TS 
         * TL
@@ -84,33 +86,35 @@ Input options can insert as two type, argument, and text file.
 
     * Path the simulation detector geometry (GDML format) directory path
 
-    * If not setting, simulation can find geometry directory autometically
+    * If not setting, the simulation can find the geometry directory automatically
 
 * **-t (table directory)**
 
     * Path the simulation correction tables directory path
 
-    * If not setting, simulation can find tables directory autometically
+    * If not setting, simulation can find tables directory automatically
 
 * **-xxx (user customized option)**
 
-    * format : -optionName optionValue 
+    * Format : -OptionName OptionValue 
 
-    * Avaliable type : int, double, bool, string (see the <source/Util/RHICfSimOptions.hh>)
+    * Available type : int, double, bool, string (see the <source/Util/RHICfSimOptions.hh>)
 
 ### Text file type
-    * Input text file extention : .txt, .dat, .par
 
-    * Format
-        * optionName = optionValue
-        * comment use to "#"
+* Input text file extension : .txt, .dat, .par
+
+* Format
+   * OptionName = OptionValue
+   * comment use to "#"
     
-    * Necessary options can see the **Argument type** part
+* Necessary options can see the **Argument type** part
 
 ## Runs
 Now you can run the RHICf+STAR simulation.
 
 * Example
+  
 ```
 cd build 
 
