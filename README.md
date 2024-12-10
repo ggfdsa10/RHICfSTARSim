@@ -1,42 +1,36 @@
-# RHICfSTARSim
-**RHICf+STAR simulation**
-
-**This framework propagates the STAR simulation data into RHICf and STAR ZDC simulation**
+# RHICf+STAR Simulation
+RHICf+STAR Simulation developed from the RHICf simulation <https://github.com/hmenjo/RHICf-Simulation> (v10)
 
 ---
 
-RHICfSTARSim is designed to be compatible with StRHICfSimDst format data and STAR's scheduler.
+* RHICf+STAR Simulation propagates the STAR simulation data into RHICf and STAR ZDC simulation
 
-The input file could need StRHICfSimDst format (HepMC format input to be updated)
+* This is designed to be compatible with StRHICfSimDst format data and STAR's scheduler.
+
+* The input file could need StRHICfSimDst format (See the **Producing the StRHICfSimDst file** part)
+
+* HepMC format input to be updated
 
 ## Preparing installation
-1. ROOT
-2. GEANT4 with GDML (version recommended below 10.6)
+
+1. **ROOT** (Required)
+2. **GEANT4** with GDML, version recommended below 10.6 (Required)
+3. **STAR Library**, version require above SL23d (Optional, see the <https://github.com/star-bnl/star-sw>)
 
 ## Installation
-1. Beforing the installation, make sure the ROOT and GEANT4 library 
+### Before the installation
 
-* Source to geant4
-  
-```
-source /path/to/geant4/install/geant4.csh
+You should make sure the geant4 and root library
 
-```
+* Source to geant4 `source /path/to/geant4/install/geant4.csh`
 
-* Check the ROOT library path
+* Check the ROOT library path `${ROOTSYS}`
 
-```
-${ROOTSYS}
-```
-
-    * Note: If you are not working on STAR server system, you should make sure the ROOT library path with CMake option.
+* Note: If you are not working on STAR server system, you should set the ROOT path with **CMake**
     
-    ```
-        cmake -DROOTPATH=/path/to/ROOT/install
-    ```
+  `cmake -DROOTPATH=/path/to/ROOT/install`
 
-
-2. Compile
+### Compile
 
 ```
 git clone https://github.com/ggfdsa10/RHICfSTARSim.git
@@ -58,55 +52,57 @@ Input options can be inserted as two types, argument, and text file.
 
 ### Argument type
 
-* **-m (Input mode)**
+* **-m** (Input mode)
 
     * **STARSim** is default option 
 
     * Available mode
 
-        * STARSim : STAR simulation propagating mode (needed StRHICfSimDst input)
+        * **STARSim** : STAR simulation propagating mode (needed StRHICfSimDst input)
 
-        * HepMC : HepMC format event generator file mode (To be updated)
+        * **HepMC** : HepMC format event generator file mode (To be updated)
 
-* **-i (Input file)**
+* **-i** (Input file)
 
     * Path the input file (Only one file acceptable)
 
-* **-r (RHICf run type)**
+* **-r** (RHICf run type)
 
     * If **STARSim** mode, run-type set using the input file automatically 
 
     * Available mode
 
-        * TS 
-        * TL
-        * TOP
+        * **TS** 
+        * **TL**
+        * **TOP**
 
-* **-g (geometry directory)**
+* **-g** (geometry directory)
 
     * Path the simulation detector geometry (GDML format) directory path
 
     * If not setting, the simulation can find the geometry directory automatically
 
-* **-t (table directory)**
+* **-t** (table directory)
 
     * Path the simulation correction tables directory path
 
-    * If not setting, simulation can find tables directory automatically
+    * If not setting, the simulation can find tables directory automatically
 
-* **-xxx (user customized option)**
+* **-xxx** (user customized option)
 
     * Format : -OptionName OptionValue 
 
-    * Available type : int, double, bool, string (see the <source/Util/RHICfSimOptions.hh>)
+    * Available type : **int, double, bool, string**
+      
+      (see the <https://github.com/ggfdsa10/RHICfSTARSim/blob/main/source/Util/RHICfSimOptions.hh>)
 
 ### Text file type
 
-* Input text file extension : .txt, .dat, .par
+* Input text file extension : **.txt, .dat, .par**
 
 * Format
    * OptionName = OptionValue
-   * comment use to "#"
+   * Comment use to "#"
     
 * Necessary options can see the **Argument type** part
 
@@ -123,3 +119,19 @@ cd build
 ./mainRHICfSTARSim ./input.dat # run to specific options with text file option
 
 ```
+
+## Producing the StRHICfSimDst file (optional)
+StRHICfSimDst format file can be produced using only StRHICfSimConvertor with STAR Library
+
+You need copy **StRoot/StRHICfSimConvertor** and **source/StRHICfSimDst** to **StRoot/StRHICfPool** directory on your STAR server directory 
+
+(or on the STAR library environment)
+
+* Correct path
+  
+  `StRoot/StRHICfPool/StRHICfSimConvertor`
+  
+  `StRoot/StRHICfPool/StRHICfSimDst`
+
+And make sure the compile as follow the STAR library
+
