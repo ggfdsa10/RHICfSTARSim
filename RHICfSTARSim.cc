@@ -124,19 +124,19 @@ int main(int argc,char** argv)
     // Construct the default run manager
     G4RunManager* runManager = new G4RunManager;
 
-    RHICfDetectorConstruction* detector=new RHICfDetectorConstruction();
+    RHICfDetectorConstruction* detector = new RHICfDetectorConstruction();
     runManager->SetUserInitialization(detector);
 
-    G4VUserPhysicsList* physics=new RHICfPhysicsList("QGSP_BERT");
+    G4VUserPhysicsList* physics = new RHICfPhysicsList("QGSP_BERT");
     runManager->SetUserInitialization(physics);
 
-    G4UserRunAction* runAction=new RHICfRunAction();
+    G4UserRunAction* runAction = new RHICfRunAction();
     runManager->SetUserAction(runAction);
-    RHICfPrimaryGeneratorAction* genAction=new RHICfPrimaryGeneratorAction();
+    RHICfPrimaryGeneratorAction* genAction = new RHICfPrimaryGeneratorAction();
     runManager->SetUserAction(genAction);
-    G4UserEventAction* eventAction=new RHICfEventAction();
+    G4UserEventAction* eventAction = new RHICfEventAction();
     runManager->SetUserAction(eventAction);
-    G4UserTrackingAction* trackAction=new RHICfTrackingAction();
+    G4UserTrackingAction* trackAction = new RHICfTrackingAction();
     runManager->SetUserAction(trackAction);
 
 
