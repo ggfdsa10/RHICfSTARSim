@@ -1,35 +1,8 @@
-#include <iostream>
-#include <cstdlib>
-#include <iomanip>
-#include <cmath>
-#include <algorithm>
-#include <utility>
-#include <omp.h>
-#include <fstream>
-
-#include "TCanvas.h"
-#include "TStyle.h"
-#include "TH1.h"
-#include "TF1.h"
-#include "TGraphErrors.h"
-// #include "TSpectrum.h"
-#include "TFitResult.h"
-// #include "Minuit2/FunctionMinimum.h"
-// #include "Minuit2/MnMigrad.h"
-// #include "Minuit2/MnMinos.h"
-// #include "Minuit2/MnPrint.h"
-#include "TMath.h"
-#include "TRandom3.h"
-#include "TVectorD.h"
-
 #include "RHICfReconstruction.hh"
 
-//#define DRAW
-
-RHICfReconstruction::RHICfReconstruction(TFile* ainput, TFile* aoutput, TString atables)
+RHICfReconstruction::RHICfReconstruction()
+: fRecoMode(true)
 {
-  finput=ainput;
-  ftables=atables;
 
   // TTree *trun=(TTree*)finput->Get("RunInfo");
   // RunInfo* runInfo=new RunInfo();
@@ -54,7 +27,6 @@ RHICfReconstruction::RHICfReconstruction(TFile* ainput, TFile* aoutput, TString 
 
   // tevent->SetMakeClass(1);
 
-
   // if((runInfo->GetFlag()).check(bGENERATE))
   //   tevent->SetBranchAddress("central", &centralCont);
   // if((runInfo->GetFlag()).check(bTRANSPORT)) {
@@ -77,119 +49,118 @@ RHICfReconstruction::RHICfReconstruction(TFile* ainput, TFile* aoutput, TString 
   // RHICfSimEvent* simEvent_out=new RHICfSimEvent();
   // tevent_out->SetBranchAddress("SimEvent", &simEvent_out);
 
+//   for(int i=0; i<nevent; i++) {
+//     std::cout << ">>> " << i << " " << std::endl;
 
-  // for(int i=0; i<nevent; i++) {
-  //   std::cout << ">>> " << i << " " << std::endl;
+//     tevent->GetEntry(i);
 
-  //   tevent->GetEntry(i);
+//     bar_mc=mcCont->GetBar();
+//     plate_mc=mcCont->GetPlate();
+//     fc_mc=mcCont->GetFC();
+//     zdc_mc=zdcCont->GetZDC();
+//     nphoton_mc=zdcCont->GetNphoton();
+//     smd_mc=zdcCont->GetSMD();
 
-  //   bar_mc=mcCont->GetBar();
-  //   plate_mc=mcCont->GetPlate();
-  //   fc_mc=mcCont->GetFC();
-  //   zdc_mc=zdcCont->GetZDC();
-  //   nphoton_mc=zdcCont->GetNphoton();
-  //   smd_mc=zdcCont->GetSMD();
+//     reconstruct=new ReconstructContainer();
+//     reconstruct->Reset();
 
-  //   reconstruct=new ReconstructContainer();
-  //   reconstruct->Reset();
+//     bar_raw=reconstruct->GetBarRaw();
+//     bar_err=reconstruct->GetBarErr();
+//     plate=reconstruct->GetPlate();
+//     bar=reconstruct->GetBar();
+//     fc=reconstruct->GetFC();
+//     nphoton=reconstruct->GetNphoton();
+//     smd=reconstruct->GetSMD();
 
-  //   bar_raw=reconstruct->GetBarRaw();
-  //   bar_err=reconstruct->GetBarErr();
-  //   plate=reconstruct->GetPlate();
-  //   bar=reconstruct->GetBar();
-  //   fc=reconstruct->GetFC();
-  //   nphoton=reconstruct->GetNphoton();
-  //   smd=reconstruct->GetSMD();
+//     Position=reconstruct->GetPosition();
+//     Rho1=reconstruct->GetRho1();
+//     Rho2=reconstruct->GetRho2();
+//     Norm=reconstruct->GetNorm();
+//     Frac=reconstruct->GetFrac();
 
-  //   Position=reconstruct->GetPosition();
-  //   Rho1=reconstruct->GetRho1();
-  //   Rho2=reconstruct->GetRho2();
-  //   Norm=reconstruct->GetNorm();
-  //   Frac=reconstruct->GetFrac();
+//     deconv.resize(ntower);
+//     for(int itower=0; itower<ntower; itower++) {
+//       deconv[itower].resize(nbelt);
+//       for(int ixy=0; ixy<nxy; ixy++) {
+// 	deconv[itower][ixy].resize(nbar[itower]);
+//       }
+//     }
+//     nPeaks.clear();
+//     isMultiHit.clear();
+//     PeakPosition.clear();
+//     PeakHeight.clear();
 
-  //   deconv.resize(ntower);
-  //   for(int itower=0; itower<ntower; itower++) {
-  //     deconv[itower].resize(nbelt);
-  //     for(int ixy=0; ixy<nxy; ixy++) {
-	// deconv[itower][ixy].resize(nbar[itower]);
-  //     }
-  //   }
-  //   nPeaks.clear();
-  //   isMultiHit.clear();
-  //   PeakPosition.clear();
-  //   PeakHeight.clear();
+//     nPeaks.resize(ntower);
+//     isMultiHit.resize(ntower);
+//     PeakPosition.resize(ntower);
+//     PeakHeight.resize(ntower);
+//     for(int itower=0; itower<ntower; itower++) {
+//       nPeaks[itower].resize(nbelt);
+//       isMultiHit[itower].resize(nbelt);
+//       PeakPosition[itower].resize(nbelt);
+//       PeakHeight[itower].resize(nbelt);
+//       for(int ibelt=0; ibelt<nbelt; ibelt++) {
+// 	nPeaks[itower][ibelt].resize(nxy);
+// 	isMultiHit[itower][ibelt].resize(nxy);
+// 	PeakPosition[itower][ibelt].resize(nxy);
+// 	PeakHeight[itower][ibelt].resize(nxy);
+// 	for(int ixy=0; ixy<nxy; ixy++) {
+// 	  nPeaks[itower][ibelt][ixy]=0;
+// 	  isMultiHit[itower][ibelt][ixy]=false;
+// 	  PeakPosition[itower][ibelt][ixy].clear();
+// 	  PeakHeight[itower][ibelt][ixy].clear();
+// 	}
+//       }
+//     }
 
-  //   nPeaks.resize(ntower);
-  //   isMultiHit.resize(ntower);
-  //   PeakPosition.resize(ntower);
-  //   PeakHeight.resize(ntower);
-  //   for(int itower=0; itower<ntower; itower++) {
-  //     nPeaks[itower].resize(nbelt);
-  //     isMultiHit[itower].resize(nbelt);
-  //     PeakPosition[itower].resize(nbelt);
-  //     PeakHeight[itower].resize(nbelt);
-  //     for(int ibelt=0; ibelt<nbelt; ibelt++) {
-	// nPeaks[itower][ibelt].resize(nxy);
-	// isMultiHit[itower][ibelt].resize(nxy);
-	// PeakPosition[itower][ibelt].resize(nxy);
-	// PeakHeight[itower][ibelt].resize(nxy);
-	// for(int ixy=0; ixy<nxy; ixy++) {
-	//   nPeaks[itower][ibelt][ixy]=0;
-	//   isMultiHit[itower][ibelt][ixy]=false;
-	//   PeakPosition[itower][ibelt][ixy].clear();
-	//   PeakHeight[itower][ibelt][ixy].clear();
-	// }
-  //     }
-  //   }
+//     CrossTalk();
+//     PedestalFluctuation();
+//     CrossTalkCorrection();
+//     // PeakSearch();
+//     // LateralFitting();
 
-  //   CrossTalk();
-  //   PedestalFluctuation();
-  //   CrossTalkCorrection();
-  //   // PeakSearch();
-  //   // LateralFitting();
+//     //    foutput->cd();
+//     for(int itower=0; itower<ntower; itower++)
+//       for(int iplate=0; iplate<nplate; iplate++)
+// 	reconstruct->SetPlate(itower,iplate,plate[itower][iplate]);
+//     for(int itower=0; itower<ntower; itower++)
+//       for(int ibelt=0; ibelt<nbelt; ibelt++)
+// 	for(int ixy=0; ixy<nxy; ixy++)
+// 	  for(int ibar=0; ibar<nbar[itower]; ibar++)
+// 	    reconstruct->SetBar(itower,ibelt,ixy,ibar,bar[itower][ibelt][ixy][ibar]);
+//     for(int itower=0; itower<ntower; itower++)
+//       reconstruct->SetFC(itower,fc[itower]);
+//     for(int izdc=0; izdc<nzdc; izdc++) 
+//       reconstruct->SetZDC(izdc,zdc[izdc]);
+//     for(int ixy=0; ixy<nxy; ixy++) 
+//       for(int ismd=0; ismd<nsmd[ixy]; ismd++) 
+// 	reconstruct->SetSMD(ixy,ismd,smd[ixy][ismd]);
+//     reconstruct->SetBarErr(bar_err);
+//     reconstruct->SetBarRaw(bar_raw);
+//     reconstruct->SetPosition(Position);
+//     reconstruct->SetRho1(Rho1);
+//     reconstruct->SetRho2(Rho2);
+//     reconstruct->SetNorm(Norm);
+//     reconstruct->SetFrac(Frac);
 
-  //   //    foutput->cd();
-  //   for(int itower=0; itower<ntower; itower++)
-  //     for(int iplate=0; iplate<nplate; iplate++)
-	// reconstruct->SetPlate(itower,iplate,plate[itower][iplate]);
-  //   for(int itower=0; itower<ntower; itower++)
-  //     for(int ibelt=0; ibelt<nbelt; ibelt++)
-	// for(int ixy=0; ixy<nxy; ixy++)
-	//   for(int ibar=0; ibar<nbar[itower]; ibar++)
-	//     reconstruct->SetBar(itower,ibelt,ixy,ibar,bar[itower][ibelt][ixy][ibar]);
-  //   for(int itower=0; itower<ntower; itower++)
-  //     reconstruct->SetFC(itower,fc[itower]);
-  //   for(int izdc=0; izdc<nzdc; izdc++) 
-  //     reconstruct->SetZDC(izdc,zdc[izdc]);
-  //   for(int ixy=0; ixy<nxy; ixy++) 
-  //     for(int ismd=0; ismd<nsmd[ixy]; ismd++) 
-	// reconstruct->SetSMD(ixy,ismd,smd[ixy][ismd]);
-  //   reconstruct->SetBarErr(bar_err);
-  //   reconstruct->SetBarRaw(bar_raw);
-  //   reconstruct->SetPosition(Position);
-  //   reconstruct->SetRho1(Rho1);
-  //   reconstruct->SetRho2(Rho2);
-  //   reconstruct->SetNorm(Norm);
-  //   reconstruct->SetFrac(Frac);
+//   //   simEvent_out->SetReconstruct(reconstruct);
 
-  // //   simEvent_out->SetReconstruct(reconstruct);
+//   //   if((runInfo->GetFlag()).check(bGENERATE)) {
+//   //     simEvent_out->SetCentral(centralCont);
+//   //   }
+//   //   if((runInfo->GetFlag()).check(bTRANSPORT)) {
+//   //     simEvent_out->SetForward(forwardCont);
+//   //   }
+//   //   //    if((runInfo->GetFlag()).check(bRESPONSE_ARM1))
+//   //   //      simEvent_out->SetMC(mcCont);
+//   //   //    if((runInfo->GetFlag()).check(bRESPONSE_ZDC))
+//   //   //      simEvent_out->SetZDC(zdcCont);
+//   //   //    if((runInfo->GetFlag()).check(bBEAMTEST))
+//   //   //      simEvent_out->SetForward(forwardCont);
 
-  // //   if((runInfo->GetFlag()).check(bGENERATE)) {
-  // //     simEvent_out->SetCentral(centralCont);
-  // //   }
-  // //   if((runInfo->GetFlag()).check(bTRANSPORT)) {
-  // //     simEvent_out->SetForward(forwardCont);
-  // //   }
-  // //   //    if((runInfo->GetFlag()).check(bRESPONSE_ARM1))
-  // //   //      simEvent_out->SetMC(mcCont);
-  // //   //    if((runInfo->GetFlag()).check(bRESPONSE_ZDC))
-  // //   //      simEvent_out->SetZDC(zdcCont);
-  // //   //    if((runInfo->GetFlag()).check(bBEAMTEST))
-  // //   //      simEvent_out->SetForward(forwardCont);
-
-  // //   if(forwardCont->GetContainer().size()!=0) 
-  // //     tevent_out->Fill();
-  // }
+//   //   if(forwardCont->GetContainer().size()!=0) 
+//   //     tevent_out->Fill();
+//   }
 
   // // runInfo_out=runInfo;
 
@@ -201,178 +172,239 @@ RHICfReconstruction::~RHICfReconstruction()
 {
 }
 
+void RHICfReconstruction::Init()
+{
+    fSimUtil = RHICfSimUtil::GetRHICfSimUtil();
+    fSimOpt = fSimUtil -> GetOptions();
+
+    fRandom = new TRandom3(fSimUtil->GenSeed());
+
+    // Read the CrossTalk table
+    TString tablePath = fSimOpt -> GetOptString("TABLEDIR");
+    TFile *CrossTalkFile = new TFile(Form("%s/GSObarXtalk.root", tablePath.Data()), "READ");
+
+    for(int itower=0; itower<ntower; itower++){
+        for(int ibelt=0; ibelt<nbelt; ibelt++){
+            for(int ixy=0; ixy<nxy; ixy++){
+                for(int ibar=0; ibar<nbar[itower]; ibar++){
+                    TString name = Form("Xtalk_Tower%d_Lay%d_XY%d_Ch%02d", itower,ibelt,ixy,ibar);
+                    fGSOBarXTalk[itower][ibelt][ixy][ibar] = (TGraphErrors*)CrossTalkFile -> Get(name);
+                }
+            }
+        }
+    }
+    CrossTalkFile -> Close();
+
+    if(fRecoMode){
+        // Read the CrossTalk correction table
+        TFile *CrossTalkCorrFile = new TFile(Form("%s/GSObarXtalk_Correction.root", tablePath.Data()), "READ");
+        for(int ibelt=0; ibelt<nbelt; ibelt++) {
+            for(int ixy=0; ixy<nxy; ixy++) {    
+                TString name = Form("XtalkCorr_Lay%d_XY%d", ibelt,ixy);
+                fCrossTalkCorrMatrix[ibelt][ixy] = (TMatrixD*)CrossTalkCorrFile -> Get(name);
+                fGSOBarMatrix[ibelt][ixy] = new TVectorD(60);
+            }
+        }
+        CrossTalkCorrFile -> Close();
+    }
+}
+
+void RHICfReconstruction::Clear()
+{
+}
+
+void RHICfReconstruction::MakeResponse()
+{
+    fSimRHICfHit = fSimDst -> GetSimRHICfHit();
+    fSimZDC = fSimDst -> GetSimZDC();
+
+    CrossTalk();
+    PedestalFluctuation();
+
+    CrossTalkCorrection(); // test
+}
+
+void RHICfReconstruction::Reconstruct()
+{
+
+}
+
 void RHICfReconstruction::CrossTalk()
 {
-  TFile *fxtalk=new TFile(ftables+"/GSObarXtalk.root", "read");
+    double gsobarRaw[ntower][nbelt][nxy][nbarTL];
+    memset(gsobarRaw, 0., sizeof(gsobarRaw));
 
-  char cc[256];
-  TGraphErrors* xtalk[ntower][nbelt][nxy][nbar[1]];
-  for(int itower=0; itower<ntower; itower++) {
-    for(int ibelt=0; ibelt<nbelt; ibelt++) {
-      for(int ixy=0; ixy<nxy; ixy++) {
-	for(int ibar=0; ibar<nbar[itower]; ibar++) {
-	  sprintf(cc,"Xtalk_Tower%d_Lay%d_XY%d_Ch%02d", itower,ibelt,ixy,ibar);
-	  xtalk[itower][ibelt][ixy][ibar]=(TGraphErrors*)fxtalk->Get(cc);
-	}
-      }
+    // Make the CrossTalk effect
+    for(int itower=0; itower<ntower; itower++){
+        for(int ibelt=0; ibelt<nbelt; ibelt++){
+            for(int ixy=0; ixy<nxy; ixy++){
+                for(int ibar=0; ibar<nbar[itower]; ibar++){
+                    double gsobardE = fSimRHICfHit -> GetGSOBardE(itower, ibelt, ixy, ibar);
+
+                    for(int jtower=0; jtower<ntower; jtower++){
+                        for(int jbar=0; jbar<nbar[jtower]; jbar++){
+                            if(itower==jtower && ibar==jbar){
+                                gsobarRaw[jtower][ibelt][ixy][jbar] += gsobardE;
+                            }
+                            else{
+                                if(jtower==0){
+                                    double table = fGSOBarXTalk[itower][ibelt][ixy][ibar]->GetY()[jbar];
+                                    double tableErr = fGSOBarXTalk[itower][ibelt][ixy][ibar]->GetEY()[jbar];
+                                    double fluc = fRandom -> Gaus(table, tableErr);
+                                    gsobarRaw[jtower][ibelt][ixy][jbar] += (gsobardE * fluc);
+                                }
+                                else{
+                                    double table = fGSOBarXTalk[itower][ibelt][ixy][ibar]->GetY()[jbar+nbar[0]];
+                                    double tableErr = fGSOBarXTalk[itower][ibelt][ixy][ibar]->GetEY()[jbar+nbar[0]];
+                                    double fluc = fRandom -> Gaus(table, tableErr);
+                                    gsobarRaw[jtower][ibelt][ixy][jbar]+= (gsobardE * fluc);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
-  }
 
-  for(int itower=0; itower<ntower; itower++) {
-    for(int ibelt=0; ibelt<nbelt; ibelt++) {
-      for(int ixy=0; ixy<nxy; ixy++) {
-	for(int ibar=0; ibar<nbar[itower]; ibar++) {
-	  for(int jtower=0; jtower<ntower; jtower++) {
-	    for(int jbar=0; jbar<nbar[jtower]; jbar++) {
-	      if(itower==jtower && ibar==jbar) {
-		bar_raw[jtower][ibelt][ixy][jbar]+=
-		  bar_mc[itower][ibelt][ixy][ibar];
-	      }else{
-		TRandom3 r(0);
-		if(jtower==0) {
-		  bar_raw[jtower][ibelt][ixy][jbar]+=
-		    bar_mc[itower][ibelt][ixy][ibar]*
-		    r.Gaus(xtalk[itower][ibelt][ixy][ibar]->GetY()[jbar],
-			   xtalk[itower][ibelt][ixy][ibar]->GetEY()[jbar]);
-		}else{
-		  bar_raw[jtower][ibelt][ixy][jbar]+=
-		    bar_mc[itower][ibelt][ixy][ibar]*
-		    r.Gaus(xtalk[itower][ibelt][ixy][ibar]->GetY()[jbar+nbar[0]],
-			   xtalk[itower][ibelt][ixy][ibar]->GetEY()[jbar+nbar[0]]);
-		}
-	      }
-	    }
-	  }
-	}
-      }
+    double mip = 0.746/5.; /// 1MIP=746keV/5p.e.
+    for(int itower=0; itower<ntower; itower++) {
+        for(int ibelt=0; ibelt<nbelt; ibelt++) {
+            for(int ixy=0; ixy<nxy; ixy++) {
+                for(int ibar=0; ibar<nbar[itower]; ibar++) {
+                    double npe = gsobarRaw[itower][ibelt][ixy][ibar]/mip;
+                    if(npe < 20.){
+                        while(npe < 0){
+                            npe = fRandom -> Poisson(npe);
+                            npe = fRandom -> Gaus(npe, sqrt(npe)*0.3);
+                        }
+                    }
+                    double raw = npe*mip;;
+                    fSimRHICfHit -> SetGSOBardE(itower, ibelt, ixy, ibar, raw);
+                }
+            }
+        }
     }
-  }
-
-  double mip=0.746/5.; /// 1MIP=746keV/5p.e.
-  for(int itower=0; itower<ntower; itower++) {
-    for(int ibelt=0; ibelt<nbelt; ibelt++) {
-      for(int ixy=0; ixy<nxy; ixy++) {
-	for(int ibar=0; ibar<nbar[itower]; ibar++) {
-	  TRandom3 p(0),g(0);
-	  double npe=bar_raw[itower][ibelt][ixy][ibar]/mip;
-	  if(npe<20) {
-	    while(npe<0) {
-	      npe=p.Poisson(npe);
-	      npe=g.Gaus(npe,sqrt(npe)*0.3);
-	    }
-	  }
-	  bar_raw[itower][ibelt][ixy][ibar]=npe*mip;
-	}
-      }
-    }
-  }
-
-  fxtalk->Close();
 }
 
 void RHICfReconstruction::PedestalFluctuation()
 {
-  for(int itower=0; itower<ntower; itower++) {
-    for(int iplate=0; iplate<nplate; iplate++) {
-      TRandom3 r(0);
-      plate[itower][iplate]=r.Gaus(plate_mc[itower][iplate],15);
-    }
-    for(int ibelt=0; ibelt<nbelt; ibelt++) {
-      for(int ixy=0; ixy<nxy; ixy++) {
-	for(int ibar=0; ibar<nbar[itower]; ibar++) {
-	  TRandom3 r(0);
-	  double tmp=r.Gaus(bar_raw[itower][ibelt][ixy][ibar],0.2);
-	  bar_raw[itower][ibelt][ixy][ibar]=tmp;
-	}
-      }
-    }
-    TRandom3 r(0);
-    fc[itower]=r.Gaus(fc_mc[itower],0.1);
-  }
+    double platePedResol = 15.;
+    double gsoBarPedResol = 0.2;
+    double fcPedResol = 0.2;
+    double zdcPmtPedResol = 20.;
+    double zdcSMDPedResol = 10.;
 
-  for(int izdc=0; izdc<nzdc; izdc++) {
-    TRandom3 r(0);
-    zdc.push_back(r.Gaus(nphoton_mc[izdc],20));
-  }
-  for(int ixy=0; ixy<nxy; ixy++) {
-    for(int ismd=0; ismd<nsmd[ixy]; ismd++) {
-      TRandom3 r(0);
-      smd[ixy][ismd]=r.Gaus(smd_mc[ixy][ismd],10);
+    // RHICf detector
+    for(int itower=0; itower<ntower; itower++) {
+        // Plate
+        for(int iplate=0; iplate<nplate; iplate++) {
+            double platedE = fSimRHICfHit -> GetPlatedE(itower, iplate);
+            double plateFlucdE = fRandom -> Gaus(platedE, platePedResol);
+
+            fSimRHICfHit -> SetPlatedE(itower, iplate, plateFlucdE);
+        }
+        // GSO bar
+        for(int ibelt=0; ibelt<nbelt; ibelt++) {
+            for(int ixy=0; ixy<nxy; ixy++) {
+                for(int ibar=0; ibar<nbar[itower]; ibar++) {
+                    double gsoBardE = fSimRHICfHit -> GetGSOBardE(itower, ibelt, ixy, ibar);
+                    double gsoBarFlucdE = fRandom -> Gaus(gsoBardE, gsoBarPedResol);
+
+                    fSimRHICfHit -> SetGSOBardE(itower, ibelt, ixy, ibar, gsoBarFlucdE);
+                }
+            }
+        }
+        // Forward Counter
+        double fcdE = fSimRHICfHit -> GetFCdE(itower);
+        double fcFlucdE = fRandom -> Gaus(fcdE, fcPedResol);
+
+        fSimRHICfHit -> SetFCdE(itower, fcFlucdE);
     }
-  }
+
+    // ZDC detector
+    // ZDC pmt
+    for(int izdc=0; izdc<nzdc; izdc++) {
+        double zdcPmtPhoton = double(fSimZDC -> GetPmtPhotonNum(izdc));
+        double zdcPmt = fRandom -> Gaus(zdcPmtPhoton, zdcPmtPedResol);
+
+        fSimZDC -> SetPmtdE(izdc, zdcPmt);
+    }
+    // ZDC SMD
+    for(int ixy=0; ixy<nxy; ixy++) {
+        for(int ismd=0; ismd<nsmd[ixy]; ismd++) {
+            double zdcSMDdE = fSimZDC -> GetSMDdE(ixy, ismd);
+            double zdcSMDFlucdE = fRandom -> Gaus(zdcSMDdE, zdcSMDPedResol);
+
+            fSimZDC -> SetSMDdE(ixy, ismd, zdcSMDFlucdE);
+        }
+    }
 }
 
 void RHICfReconstruction::CrossTalkCorrection()
 {
-  TFile *fcorr=new TFile(ftables+"/GSObarXtalk_Correction.root", "read");
-
-  char cc[256];
-  TMatrixD *mcorr[nbelt][nxy];
-  for(int ibelt=0; ibelt<nbelt; ibelt++) {
-    for(int ixy=0; ixy<nxy; ixy++) {
-      sprintf(cc, "XtalkCorr_Lay%d_XY%d",ibelt,ixy);
-      mcorr[ibelt][ixy]=(TMatrixD*)fcorr->Get(cc);
+    double tmpGSOBar[64];
+    for(int ibelt=0; ibelt<nbelt; ibelt++){
+        for(int ixy=0; ixy<nxy; ixy++){
+            for(int i=0; i<nbar[0]; i++){
+                tmpGSOBar[i] = fSimRHICfHit -> GetGSOBardE(0, ibelt, ixy, i);
+            }
+            for(int i=0; i<nbar[1]; i++){
+                tmpGSOBar[i+nbar[0]] =fSimRHICfHit -> GetGSOBardE(1, ibelt, ixy, i);
+            }
+            for(int i=0; i<nunused; i++){
+                tmpGSOBar[i+nbar[0]+nbar[1]] = 0;
+            }
+            fGSOBarMatrix[ibelt][ixy] -> ResizeTo(64);
+            fGSOBarMatrix[ibelt][ixy] -> SetElements(tmpGSOBar);
+        }
     }
-  }
 
-  TVectorD *v[nbelt][nxy];
-  double tmp[64];
-  for(int ibelt=0; ibelt<nbelt; ibelt++) {
-    for(int ixy=0; ixy<nxy; ixy++) {
-      for(int i=0; i<nbar[0]; i++)
-	tmp[i]=bar_raw[0][ibelt][ixy][i];
-      for(int i=0; i<nbar[1]; i++)
-	tmp[i+nbar[0]]=bar_raw[1][ibelt][ixy][i];
-      for(int i=0; i<nunused; i++)
-	tmp[i+nbar[0]+nbar[1]]=0;
-      v[ibelt][ixy]=new TVectorD(64,tmp);
+    double pedstalErr = 0.5;
+    for(int ibelt=0; ibelt<nbelt; ibelt++) {
+        for(int ixy=0; ixy<nxy; ixy++) {
+
+            // Get the CrossTalk error
+            for(int ibar=0; ibar<64; ibar++) {
+                double err2 = 0.;
+                for(int jbar=0; jbar<64; jbar++) {
+                    double err = 0.;
+                    if(jbar < 20){
+                        err=std::max((*fGSOBarMatrix[ibelt][ixy])[jbar], 0.) + pedstalErr*pedstalErr;
+                    }
+                    else if(jbar < 60){
+                        err=std::max((*fGSOBarMatrix[ibelt][ixy])[jbar], 0.) + pedstalErr*pedstalErr;
+                    }
+                    else{
+                        err=std::max((*fGSOBarMatrix[ibelt][ixy])[jbar], 0.) + pedstalErr*pedstalErr;
+                    }
+                    err2 += pow((*fCrossTalkCorrMatrix[ibelt][ixy])[ibar][jbar], 2.) * err;
+                }
+                if(ibar < 20){
+                    // bar_err[0][ibelt][ixy][ibar] = sqrt(err2);
+                }
+                else if(ibar < 60){
+                    // bar_err[1][ibelt][ixy][ibar-20] = sqrt(err2);
+                }
+            }
+            
+            // CrossTalk correction matrix multiplication
+            (*fGSOBarMatrix[ibelt][ixy]) *= (*fCrossTalkCorrMatrix[ibelt][ixy]);
+
+            // CrossTalk correction
+            for(int itower=0; itower<ntower; itower++){
+                for(int ibar=0; ibar<nbar[itower]; ibar++){
+                    double gsoBarCorrdE = (*fGSOBarMatrix[ibelt][ixy])(nbar[0]*itower + ibar);
+                }
+            }
+        }
     }
-  }
-
-  double ped[ntower]={0.5,0.5};
-  double npe[ntower]={5,5};
-
-  for(int ibelt=0; ibelt<nbelt; ibelt++) {
-    for(int ixy=0; ixy<nxy; ixy++) {
-      for(int ibar=0; ibar<64; ibar++) {
-	double err2=0.;
-	for(int jbar=0; jbar<64; jbar++) {
-	  double err=0.;
-	  if(jbar<20)      err=std::max((*v[ibelt][ixy])[jbar],0.)+pow(ped[0],2.);
-	  else if(jbar<60) err=std::max((*v[ibelt][ixy])[jbar],0.)+pow(ped[1],2.);
-	  else             err=std::max((*v[ibelt][ixy])[jbar],0.)+pow(ped[0],2.);
-	  err2+=pow((*mcorr[ibelt][ixy])[ibar][jbar],2.)*err;
-	}
-	if(ibar<20)      bar_err[0][ibelt][ixy][ibar]   =sqrt(err2);
-	else if(ibar<60) bar_err[1][ibelt][ixy][ibar-20]=sqrt(err2);
-      }
-    }
-  }
-
-  for(int ibelt=0; ibelt<nbelt; ibelt++)
-    for(int ixy=0; ixy<nxy; ixy++)
-      (*v[ibelt][ixy])*=(*mcorr[ibelt][ixy]);
-
-  for(int itower=0; itower<ntower; itower++) 
-    for(int ibelt=0; ibelt<nbelt; ibelt++) 
-      for(int ixy=0; ixy<nxy; ixy++) 
-	for(int ibar=0; ibar<nbar[itower]; ibar++) 
-	  bar[itower][ibelt][ixy][ibar]=(*v[ibelt][ixy])(nbar[0]*itower+ibar);
-
-
-  for(int ibelt=0; ibelt<nbelt; ibelt++) {
-    for(int ixy=0; ixy<nxy; ixy++) {
-      v[ibelt][ixy]->Delete();
-      mcorr[ibelt][ixy]->Delete();
-    }
-  }
-  fcorr->Close();
 }
 
 // void RHICfReconstruction::PeakSearch()
 // {
 //   // Peak search
-//   TSpectrum *s = new TSpectrum();
+  TSpectrum *s = new TSpectrum();
 
 //   typedef std::pair<int, double> value_type;
 //   std::vector< value_type > peaks;

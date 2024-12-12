@@ -24,6 +24,7 @@ class RHICfSimUtil
         Long_t GenSeed();
         TString GetGDMLFile();
         Bool_t IsStarSimMode();
+        TString GetProcessName(int procId);
 
     private:
         static RHICfSimUtil* mInstance;

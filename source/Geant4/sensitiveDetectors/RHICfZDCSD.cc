@@ -126,10 +126,8 @@ void RHICfZDCSD::EndOfEvent(G4HCofThisEvent* )
 {
   /// Make hits and push them to "Hit Coleltion"
   for(int izdc=0; izdc<nzdc; izdc++) {
-    if(1) {
-      nphoton[izdc]=(int)nphoton2[izdc];
-    }
-
+    nphoton[izdc]=(int)nphoton2[izdc];
+    
     RHICfZDCHit* ahit=new RHICfZDCHit(izdc, nphoton[izdc], edep[izdc], primaryTrackId[izdc]);
     hitsColl->insert(ahit);
   }

@@ -6,6 +6,8 @@ static const int nplate=16;
 static const int nbelt=4;
 static const int nxy=2;
 static const int nbar[ntower]={20,40};
+static const int nbarTS=20;
+static const int nbarTL=40;
 static const int nunused=4;
 static const double weight[nplate+1]={1.,1.,1.,1.,1.,1.,1.,1.,
 				      1.,1.,1.,2.,2.,2.,2.,2.,1.};

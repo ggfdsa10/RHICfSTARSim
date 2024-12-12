@@ -2,7 +2,6 @@
     #define LHCFRUNACTION_H 1
 
     #include "G4UserRunAction.hh"
-    #include "G4Timer.hh"
     #include "G4String.hh"
     #include "globals.hh"
 
@@ -25,9 +24,6 @@ class RHICfRunAction: public G4UserRunAction
         void EndOfRunAction(const G4Run*);
 
         private:
-        G4Timer* fTimer; 
-        G4double fElapsedTime;
-
     	RHICfSimUtil* fSimUtil;
         RHICfSimOptions* fSimOpt;
 

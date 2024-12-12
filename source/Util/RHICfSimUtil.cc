@@ -86,3 +86,16 @@ Bool_t RHICfSimUtil::IsStarSimMode()
     if(mode == "STARSIM"){return 1;}
     return 0;
 }
+
+TString RHICfSimUtil::GetProcessName(int procId)
+{
+    // if(model == "PYTHIA")
+    if(procId == 101){return "NonDiffraction";}
+    if(procId == 103 || procId == 104){return "SingleDiffraction";}
+    if(procId == 105){return "DoubleDiffraction";}
+    if(procId == 106){return "CentralDiffraction";}
+    if(procId == 102){return "Elestic";}
+
+    return "Non";
+}   
+

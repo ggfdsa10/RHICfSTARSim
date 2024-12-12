@@ -3,6 +3,11 @@
 
 RHICfEventAction::RHICfEventAction()
 {
+    fSimUtil = RHICfSimUtil::GetRHICfSimUtil();
+    fSimOpt = fSimUtil -> GetOptions();
+
+    fRHICfReco = new RHICfReconstruction();
+    fRHICfReco -> Init();
 }
 
 RHICfEventAction::~RHICfEventAction()
@@ -11,7 +16,7 @@ RHICfEventAction::~RHICfEventAction()
 
 void RHICfEventAction::BeginOfEventAction(const G4Event* evt)
 {
-    G4cout << " RHICfEventAction::BeginOfEventAction() -- Event: " << evt->GetEventID() << " progressing..." << G4endl;
+    G4cout << "RHICfEventAction::BeginOfEventAction() -- Event: " << evt->GetEventID() << " progressing..." << G4endl;
 }
 
 void RHICfEventAction::EndOfEventAction(const G4Event* evt)
@@ -33,6 +38,9 @@ void RHICfEventAction::EndOfEventAction(const G4Event* evt)
 
     fZDCPrimaryNum.clear();
     fZDCPrimaryNum.resize(parSimTrkIdxArr.size());
+
+    // Assign the StRHICfSimEvent
+    fSimEvent = fSimDst -> GetSimEvent();
 
     // ================ RHICf Sensitive detectors ================
     fSimRHICfHit = fSimDst -> GetSimRHICfHit();
@@ -158,7 +166,34 @@ void RHICfEventAction::EndOfEventAction(const G4Event* evt)
         int simTrkId = parSimTrkIdxArr[i];
         fSimZDC -> SetSimTrkId(simTrkId);
     }
+
+    // ================ Reconstruction ================
+    fRHICfReco -> SetSimDst(fSimDst);
+    fRHICfReco -> Clear();
+
+    fRHICfReco -> MakeResponse();
     
     // Fill the Output SimDst Tree
     fOutputTree -> Fill();
+
+    // Print the event information
+    EventPrint();
+}
+
+void RHICfEventAction::EventPrint()
+{
+    cout << "RHICfEventAction::EventPrint()" << endl;
+    cout << "    StRHICfSimEvent -- Event: " << fSimEvent -> GetEventNumber() << ", ";
+
+    TString procName = fSimUtil -> GetProcessName(fSimEvent -> GetProcessId());
+    cout << "Process: " << procName << endl;
+
+    cout << "    StRHICfSimTrack -- Primary Trk Num: " << fSimEvent -> GetPrimaryTrkNum() << ", ";
+    cout << "Propagated Trk Num: " << (fGenAction -> GetParSimTrkIdxArray()).size() << endl;
+
+    cout << "    RHICf deposited particle Num -- in TS: " << fSimRHICfHit -> GetSimTrkNum(0) << ", ";
+    cout << "TL: " << fSimRHICfHit -> GetSimTrkNum(1) << endl;
+
+    cout << "    ZDC deposited particle Num: " << fSimZDC -> GetSimTrkNum() << endl;
+
 }

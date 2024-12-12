@@ -29,6 +29,11 @@
 #include "StRHICfSimRHICfHit.h"
 #include "StRHICfSimZDC.h"
 
+#include "RHICfSimUtil.hh"
+#include "RHICfSimOptions.hh"
+
+#include "RHICfReconstruction.hh"
+
 class G4Event;
 
 class RHICfEventAction: public G4UserEventAction
@@ -44,6 +49,8 @@ class RHICfEventAction: public G4UserEventAction
         void SetSimDst(StRHICfSimDst* simDst){fSimDst = simDst;}
 
     private:
+        void EventPrint();
+
         G4HCofThisEvent* fHitCollThisEvent;
         G4RunManager* fRunManager;
         G4SDManager* fSDManager;
@@ -60,11 +67,19 @@ class RHICfEventAction: public G4UserEventAction
         ZDCHitsCollection* fZDCPMTHitColl;
         SMDHitsCollection* fZDCSMDHitColl;
 
-        // simDst
+        // SimUtil
+        RHICfSimUtil* fSimUtil;
+        RHICfSimOptions* fSimOpt;
+
+        // SimDst
         TTree* fOutputTree;
         StRHICfSimDst* fSimDst;
+        StRHICfSimEvent* fSimEvent;
         StRHICfSimRHICfHit* fSimRHICfHit;
         StRHICfSimZDC* fSimZDC;
+
+        // RHICf Reconstruction
+        RHICfReconstruction* fRHICfReco;
 
 };
 
