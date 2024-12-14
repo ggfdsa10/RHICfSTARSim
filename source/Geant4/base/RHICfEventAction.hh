@@ -75,10 +75,9 @@ class RHICfEventAction: public G4UserEventAction
         TTree* fOutputTree;
         StRHICfSimDst* fSimDst;
         StRHICfSimEvent* fSimEvent;
+        StRHICfSimTrack* fSimTrack;
         StRHICfSimRHICfHit* fSimRHICfHit;
         StRHICfSimZDC* fSimZDC;
-
-        StRHICfSimTrack* fSimTrack; // test
 
         // RHICf Reconstruction
         RHICfReconstruction* fRHICfReco;

@@ -29,7 +29,7 @@ void RHICfEventAction::EndOfEventAction(const G4Event* evt)
 
     fGenAction = (RHICfPrimaryGeneratorAction*)fRunManager->GetUserPrimaryGeneratorAction();
 
-    // For finding the number of incident particle
+    // For finding the number of incident particle which are deposited in detector medium
     vector<int> parSimTrkIdxArr = fGenAction -> GetParSimTrkIdxArray();
     fRHICfPrimaryNum[0].clear();
     fRHICfPrimaryNum[1].clear();
@@ -55,11 +55,13 @@ void RHICfEventAction::EndOfEventAction(const G4Event* evt)
 
         fSimRHICfHit -> SetFCdE(towerIdx, edep);
 
+        if(fRHICfPrimaryNum[towerIdx].size() == 0){continue;}
         vector<int> primaryTrkId = (*fRHICfFCHitColl)[i]->GetPrimaryTrackId();
         for(int par=0; par<primaryTrkId.size(); par++){
-            int trkId = primaryTrkId[par];
-            if(trkId < fRHICfPrimaryNum[towerIdx].size() && fRHICfPrimaryNum[towerIdx].size() != 0){
-                fRHICfPrimaryNum[towerIdx][trkId-1] += 1;
+            int trkId = primaryTrkId[par] -1;
+
+            if(trkId < fRHICfPrimaryNum[towerIdx].size()){
+                fRHICfPrimaryNum[towerIdx][trkId] += 1;
             }
         }
     }
@@ -74,11 +76,13 @@ void RHICfEventAction::EndOfEventAction(const G4Event* evt)
 
         fSimRHICfHit -> SetPlatedE(towerIdx, plateIdx, edep);
 
+        if(fRHICfPrimaryNum[towerIdx].size() == 0){continue;}
         vector<int> primaryTrkId = (*fRHICfGSOPlateHitColl)[i]->GetPrimaryTrackId();
         for(int par=0; par<primaryTrkId.size(); par++){
-            int trkId = primaryTrkId[par];
-            if(trkId < fRHICfPrimaryNum[towerIdx].size() && fRHICfPrimaryNum[towerIdx].size() != 0){
-                fRHICfPrimaryNum[towerIdx][trkId-1] += 1;
+            int trkId = primaryTrkId[par] -1;
+
+            if(trkId < fRHICfPrimaryNum[towerIdx].size()){
+                fRHICfPrimaryNum[towerIdx][trkId] += 1;
             }
         }
     }
@@ -95,11 +99,13 @@ void RHICfEventAction::EndOfEventAction(const G4Event* evt)
 
         fSimRHICfHit -> SetGSOBardE(towerIdx, layerIdx, xyIdx, barIdx, edep);
 
+        if(fRHICfPrimaryNum[towerIdx].size() == 0){continue;}
         vector<int> primaryTrkId = (*fRHICfGSOBarHitColl)[i]->GetPrimaryTrackId();
         for(int par=0; par<primaryTrkId.size(); par++){
-            int trkId = primaryTrkId[par];
-            if(trkId < fRHICfPrimaryNum[towerIdx].size() && fRHICfPrimaryNum[towerIdx].size() != 0){
-                fRHICfPrimaryNum[towerIdx][trkId-1] += 1;
+            int trkId = primaryTrkId[par] -1;
+
+            if(trkId < fRHICfPrimaryNum[towerIdx].size()){
+                fRHICfPrimaryNum[towerIdx][trkId] += 1;
             }
         }
     }
@@ -130,11 +136,13 @@ void RHICfEventAction::EndOfEventAction(const G4Event* evt)
         fSimZDC -> SetPmtPhotonNum(moduleIdx, photonNum);
         fSimZDC -> SetPmtdE(moduleIdx, edep);
 
+        if(fZDCPrimaryNum.size() == 0){continue;}
         vector<int> primaryTrkId = (*fZDCPMTHitColl)[i]->GetPrimaryTrackId();
         for(int par=0; par<primaryTrkId.size(); par++){
-            int trkId = primaryTrkId[par];
-            if(trkId < fZDCPrimaryNum.size() && fZDCPrimaryNum.size() != 0){
-                fZDCPrimaryNum[trkId-1] += 1;
+            int trkId = primaryTrkId[par] -1;
+
+            if(trkId < fZDCPrimaryNum.size()){
+                fZDCPrimaryNum[trkId] += 1;
             }
         }
     }
@@ -149,11 +157,13 @@ void RHICfEventAction::EndOfEventAction(const G4Event* evt)
 
         fSimZDC -> SetSMDdE(xyIdx, smdIdx, edep);
 
+        if(fZDCPrimaryNum.size() == 0){continue;}
         vector<int> primaryTrkId = (*fZDCSMDHitColl)[i]->GetPrimaryTrackId();
         for(int par=0; par<primaryTrkId.size(); par++){
-            int trkId = primaryTrkId[par];
-            if(trkId < fZDCPrimaryNum.size() && fZDCPrimaryNum.size() != 0){
-                fZDCPrimaryNum[trkId-1] += 1;
+            int trkId = primaryTrkId[par] -1;
+
+            if(trkId < fZDCPrimaryNum.size()){
+                fZDCPrimaryNum[trkId] += 1;
             }
         }
     }
@@ -169,31 +179,8 @@ void RHICfEventAction::EndOfEventAction(const G4Event* evt)
 
     // ================ Reconstruction ================
     fRHICfReco -> SetSimDst(fSimDst);
-    fRHICfReco -> Clear();
     fRHICfReco -> MakeResponse();
     fRHICfReco -> Reconstruct();
-
-    // test !!!!! ====================
-    cout << " ============================= " << endl;
-
-    double sumdE = 0.;
-    for(int it=0; it<ntower; it++){
-        for(int ip=0; ip<nplate; ip++){
-            sumdE += fSimRHICfHit -> GetPlatedE(it, ip);
-        }
-    } 
-    cout << " Plate Sum Energy : " << sumdE << endl;
-    for(int i=0; i<parSimTrkIdxArr.size(); i++){
-        int simTrkId = parSimTrkIdxArr[i];
-        fSimTrack = fSimDst -> GetSimTrack(simTrkId);
-        int pid = fSimTrack -> GetPid();
-        double e = fSimTrack -> GetE();
-        double vxEnd = fSimTrack -> GetVxEnd();
-        double vyEnd = fSimTrack -> GetVyEnd();
-        double vzEnd = fSimTrack -> GetVzEnd();
-
-        cout << "pid: " << pid << ", energy: " << e << " | vertex: (" << vxEnd << ", " << vyEnd << ", " << vzEnd<< ") " << endl;
-    }
     
 
     // Fill the Output SimDst Tree
@@ -205,7 +192,8 @@ void RHICfEventAction::EndOfEventAction(const G4Event* evt)
 
 void RHICfEventAction::EventPrint()
 {
-    cout << "RHICfEventAction::EventPrint() -- Event: " << fSimEvent -> GetEventNumber() << endl;
+    cout << "=======================================================================================" << endl;
+    cout << "RHICfEventAction::EventPrint() -- Event: " << fSimEvent -> GetEventNumber() -1 << endl;
     TString procName = fSimUtil -> GetProcessName(fSimEvent -> GetProcessId());
     cout << "    StRHICfSimEvent -- Process: " << procName << endl;
 
@@ -217,4 +205,53 @@ void RHICfEventAction::EventPrint()
 
     cout << "    ZDC deposited particle Num: " << fSimZDC -> GetSimTrkNum() << endl;
 
+    // RHICf Reconstruction information 
+    int gsoBarMaxLayer[2];
+    double gsoBarMaxE[2];
+    double plateSumE[2];
+    memset(plateSumE, 0., sizeof(plateSumE));
+    for(int itower=0; itower<ntower; itower++){
+        double tmpValue = 0.;
+        int tmpLayerIdx = -1;
+        for(int ibelt=0; ibelt<nbelt; ibelt++){
+            double sumE = 0.;
+            for(int ixy=0; ixy<nxy; ixy++){
+                for(int ibar=0; ibar<nbar[itower]; ibar++){
+                    sumE += fSimRHICfHit -> GetGSOBardE(itower, ibelt, ixy, ibar);
+                }
+            }
+            if(tmpValue < sumE){
+                tmpValue = sumE;
+                tmpLayerIdx = ibelt;
+            }
+        }
+        gsoBarMaxLayer[itower] = tmpLayerIdx;
+        gsoBarMaxE[itower] = tmpValue;
+
+        for(int iplate=0; iplate<nplate; iplate++){
+            plateSumE[itower] += fSimRHICfHit -> GetPlatedE(itower, iplate);
+        }
+    }
+
+    cout << "    RHICfReconstruction -- Plate Sum of Energy -- TS: " << plateSumE[0] << ", ";
+    cout << "TL: " << plateSumE[1] << endl;
+    cout << "    RHICfReconstruction -- GSOBar Max layer -- TS: " << gsoBarMaxLayer[0] << ", ";
+    cout << "TL: " << gsoBarMaxLayer[1] << endl;
+    cout << "    RHICfReconstruction -- GSOBar Max layer Energy -- TS: " <<  gsoBarMaxE[0] << ", ";
+    cout << "TL: " << gsoBarMaxE[1] << endl;
+
+    int tsPeakNumX = fSimRHICfHit->GetPeakNum(0, gsoBarMaxLayer[0], 0);
+    int tsPeakNumY = fSimRHICfHit->GetPeakNum(0, gsoBarMaxLayer[0], 1);
+    int tlPeakNumX = fSimRHICfHit->GetPeakNum(1, gsoBarMaxLayer[1], 0);
+    int tlPeakNumY = fSimRHICfHit->GetPeakNum(1, gsoBarMaxLayer[1], 1);
+    cout << "    RHICfReconstruction -- GSOBar Max layer PeakNum (x,y)  -- TS: (" <<  tsPeakNumX << ", " << tsPeakNumY << "), ";
+    cout << "TL: (" << tlPeakNumX << ", " << tlPeakNumY << ")" << endl;
+
+    double tsposX = (tsPeakNumX == 2)? fSimRHICfHit->GetMultiHitPos(0, gsoBarMaxLayer[0], 0, 0) : ((tsPeakNumX == 1)? fSimRHICfHit->GetSingleHitPos(0, gsoBarMaxLayer[0], 0) : -999.);
+    double tsposY = (tsPeakNumY == 2)? fSimRHICfHit->GetMultiHitPos(0, gsoBarMaxLayer[0], 1, 0) : ((tsPeakNumY == 1)? fSimRHICfHit->GetSingleHitPos(0, gsoBarMaxLayer[0], 1) : -999.);
+    double tlposX = (tlPeakNumX == 2)? fSimRHICfHit->GetMultiHitPos(1, gsoBarMaxLayer[1], 0, 0) : ((tlPeakNumX == 1)? fSimRHICfHit->GetSingleHitPos(1, gsoBarMaxLayer[1], 0) : -999.);
+    double tlposY = (tlPeakNumY == 2)? fSimRHICfHit->GetMultiHitPos(1, gsoBarMaxLayer[1], 1, 0) : ((tlPeakNumY == 1)? fSimRHICfHit->GetSingleHitPos(1, gsoBarMaxLayer[1], 1) : -999.);
+    cout << "    RHICfReconstruction -- GSOBar Max layer Position (x,y) -- TS: (" <<  tsposX << ", " << tsposY << "), ";
+    cout << "TL: (" << tlposX << ", " << tlposY << ")" << endl;
+    cout << "=======================================================================================" << endl;
 }
