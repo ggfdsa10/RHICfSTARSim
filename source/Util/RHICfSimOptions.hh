@@ -36,11 +36,13 @@ class RHICfSimOptions
         bool CheckOpt(TString name);
 
     private:
-        // void PrintOpt();
+        void PrintOpt();
+
         void ParsingFile();
         void ParsingParm();
         void AddStringByType(TString name, TString val);
         TString GetDirPath(TString type);
+        TString GetExistROOTFile(TString input); // for STAR scheduler
 
         int mInputParNum;
         char** mInputPar;

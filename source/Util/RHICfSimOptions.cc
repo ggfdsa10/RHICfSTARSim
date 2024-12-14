@@ -10,8 +10,6 @@
 #include "TSystemFile.h"
 #include "TSystemDirectory.h"
 
-#include <typeinfo> // test
-
 RHICfSimOptions::RHICfSimOptions() 
 {
     mRequiredPar.clear();
@@ -32,6 +30,8 @@ void RHICfSimOptions::Init()
     // List of Required parameters
     mRequiredPar.push_back(make_pair("m", "mode")); // input mode : STARsim, HepMC 
     mRequiredPar.push_back(make_pair("i", "input")); // input file : StarSim.root, HepMC.txt
+    mRequiredPar.push_back(make_pair("n", "eventnum")); // total number of events
+    mRequiredPar.push_back(make_pair("o", "outpath")); // output file path
     mRequiredPar.push_back(make_pair("r", "runtype")); // RHICf run tpye : TS, TL, TOP
     mRequiredPar.push_back(make_pair("g", "geometrydir")); // Geometry dir path
     mRequiredPar.push_back(make_pair("t", "tabledir")); // Table dir path
@@ -65,17 +65,23 @@ void RHICfSimOptions::SetInputOption(int num,char** par)
                 AddOpt(requiredParName, TString("STARSIM"));
                 cout << "RHICfSimOptions::SetInputOption() -- " << requiredParName << " is to be default mode. STARSIM" << endl;
             }
+            if(requiredParName == "outpath"){
+                TString currentPath = gSystem -> pwd();
+                AddOpt(requiredParName, currentPath);
+                cout << "RHICfSimOptions::SetInputOption() -- " << requiredParName << " is to be current path. " << currentPath << endl;
+            }
             if(requiredParName == "runtype"){
                 TString mode = GetOptString("MODE");
                 if(mode == "STARSIM"){
                     TString inputFile = GetOptString("INPUT");
+                    inputFile = GetExistROOTFile(inputFile); // Check the one RHICfSimDst.root file or STAR job
 
                     TFile* file = new TFile(inputFile, "READ");
                     TTree* tree = (TTree*)file -> Get("StRHICfSimDst");
                     StRHICfSimDst* simDst = new StRHICfSimDst();
                     simDst -> ReadDstArray(tree);
                     int eventNum = tree -> GetEntries();
-                    AddOpt("eventNum", eventNum);
+                    if(!CheckOpt("EVENTNUM")){AddOpt("eventNum", eventNum);}
                     
                     tree -> GetEntry(0);
                     StRHICfSimEvent* simEvent = simDst -> GetSimEvent();
@@ -85,6 +91,19 @@ void RHICfSimOptions::SetInputOption(int num,char** par)
                     if(runtype == rTLtype){runtypeName = "TL";}
                     if(runtype == rTOPtype){runtypeName = "TOP";}
                     AddOpt("runtype", runtypeName);
+
+                    // Output file name
+                    TString outputFile = inputFile;
+                    if(CheckOpt("OUTPATH")){
+                        TObjArray* tokens = outputFile.Tokenize("/");
+                        outputFile = ((TObjString *)tokens -> At(tokens->GetEntries()-1)) -> GetString();
+                        TString outPath = GetOptString("OUTPATH");
+                        outPath = (outPath[outPath.Sizeof()-2] == '/')? outPath : outPath+"/";
+                        outputFile = outPath + outputFile;
+                    }
+                    outputFile.ReplaceAll(".RHICfSimDst.root", ".rhicfsim.RHICfSimDst.root");
+                    AddOpt("OUTPUT", outputFile);
+                    cout << "RHICfSimOptions::SetInputOption()  -- OUTPUT: " << outputFile << endl;
 
                     if(CheckOpt("runtype")){
                         cout << "RHICfSimOptions::SetInputOption() -- " << requiredParName << " was found. " << GetOptString("RUNTYPE") << endl; 
@@ -100,6 +119,8 @@ void RHICfSimOptions::SetInputOption(int num,char** par)
             }
         }
     }
+
+    PrintOpt();
 }
 
 void RHICfSimOptions::AddOpt(TString name, int value)
@@ -216,6 +237,33 @@ bool RHICfSimOptions::CheckOpt(TString name)
     return false;
 }
 
+void RHICfSimOptions::PrintOpt()
+{
+    cout << "RHICfSimOptions::PrintOpt() ================================================================" << endl;
+    TString optName;
+    for(int i=0; i<mOptInt.size(); i++){
+        optName = mOptInt[i].first;
+        optName.ToUpper();
+        cout << "Option: " << optName << " = " << mOptInt[i].second << endl;
+    }
+    for(int i=0; i<mOptDouble.size(); i++){
+        optName = mOptDouble[i].first;
+        optName.ToUpper();
+        cout << "Option: " << optName << " = " << mOptDouble[i].second << endl;
+    }
+    for(int i=0; i<mOptBool.size(); i++){
+        optName = mOptBool[i].first;
+        optName.ToUpper();
+        cout << "Option: " << optName << " = " << mOptBool[i].second << endl;
+    }
+    for(int i=0; i<mOptString.size(); i++){
+        optName = mOptString[i].first;
+        optName.ToUpper();
+        cout << "Option: " << optName << " = " << mOptString[i].second << endl;
+    }
+    cout << "============================================================================================" << endl;
+}
+
 void RHICfSimOptions::ParsingFile()
 {
     TString par = mInputPar[1];
@@ -308,15 +356,13 @@ void RHICfSimOptions::AddStringByType(TString name, TString val)
     } 
 }
 
-
 TString RHICfSimOptions::GetDirPath(TString type)
 {
     TString typeName = (type == "geometrydir")? "Geometry" : "Table";
 
     // Find a Geometry and table directory
     TString currentPath = gSystem -> pwd();
-    TObjArray *tokens = tokens = currentPath.Tokenize("/");
-
+    TObjArray *tokens = currentPath.Tokenize("/");
     TString directory = "";
 
     TList *listOfDirs;
@@ -348,4 +394,35 @@ TString RHICfSimOptions::GetDirPath(TString type)
             return directory;
         }
     }
+}
+
+TString RHICfSimOptions::GetExistROOTFile(TString input)
+{
+    if(input.Index("RHICfSimDst.root") != -1){return input;}
+    TString findFileName = input + ".RHICfSimDst.root";
+
+    TString currentPath = gSystem -> pwd();
+    currentPath.ReplaceAll("/RHICfSTARSim/build", "");
+
+    cout << "RHICfSimOptions::GetExistROOTFile() -- Find a RHICfSimDst file in " << currentPath << endl;
+
+    TSystemDirectory dir("dir", currentPath);
+    TList *listOfDirs = dir.GetListOfFiles();
+    
+    TObject *objDir;
+    TIter next(listOfDirs);
+    while((objDir = next())){
+        TSystemFile* dirPtr = dynamic_cast<TSystemFile*>(objDir);
+        if(dirPtr && !dirPtr->IsDirectory()){
+            TString fileName = dirPtr->GetName();
+            if(fileName.Index(findFileName) != -1){
+                fileName = currentPath +"/"+ fileName;
+                cout << "RHICfSimOptions::GetExistROOTFile() -- RHICfSimDst file found " << fileName << endl;
+                return fileName;
+            }
+        }
+    }
+
+    cout << "RHICfSimOptions::GetExistROOTFile() -- Can not find a " <<  findFileName << endl;
+    return "";
 }
