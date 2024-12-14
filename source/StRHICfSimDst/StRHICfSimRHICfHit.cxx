@@ -18,11 +18,11 @@ void StRHICfSimRHICfHit::Clear(Option_t *option)
     fill_n(&mSmallGSOBardE[0][0][0], rLayerNum*rXYNum*rSmallBarNum, -999.);
     fill_n(&mLargeGSOBardE[0][0][0], rLayerNum*rXYNum*rLargeBarNum, -999.);
 
-    fill_n(&mPeakNum[0][0][0], rTowerNum*rTowerNum*rXYNum, -999);
-    fill_n(&mMaxPeakBarIdx[0][0][0], rTowerNum*rTowerNum*rXYNum, -999);
-    fill_n(&mSingleHitResult[0][0][0][0], rTowerNum*rTowerNum*rXYNum*3, -999);
-    fill_n(&mMultiHitResult[0][0][0][0][0], rTowerNum*rTowerNum*rXYNum*2*2, -999);
-    fill_n(&mMultiFitChi2[0][0][0], rTowerNum*rTowerNum*rXYNum, -999);
+    fill_n(&mPeakNum[0][0][0], rTowerNum*rLayerNum*rXYNum, -999);
+    fill_n(&mMaxPeakBarIdx[0][0][0], rTowerNum*rLayerNum*rXYNum, -999);
+    fill_n(&mSingleHitResult[0][0][0][0], rTowerNum*rLayerNum*rXYNum*3, -999);
+    fill_n(&mMultiHitResult[0][0][0][0][0], rTowerNum*rLayerNum*rXYNum*2*2, -999);
+    fill_n(&mMultiFitChi2[0][0][0], rTowerNum*rLayerNum*rXYNum, -999);
 
     for(int i=0; i<rTowerNum; i++){
         mSimTrkId[i].clear();
