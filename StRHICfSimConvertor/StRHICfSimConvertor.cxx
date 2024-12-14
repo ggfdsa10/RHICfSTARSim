@@ -28,8 +28,6 @@
 #include "StRHICfPool/StRHICfSimDst/StRHICfSimTrack.h"
 #include "StRHICfPool/StRHICfSimDst/StRHICfSimBBC.h"
 #include "StRHICfPool/StRHICfSimDst/StRHICfSimBTof.h"
-#include "StRHICfPool/StRHICfSimDst/StRHICfSimRHICfHit.h"
-#include "StRHICfPool/StRHICfSimDst/StRHICfSimRHICfPoint.h"
 #include "StRHICfPool/StRHICfSimDst/StRHICfSimZDC.h"
 
 StRHICfSimConvertor::StRHICfSimConvertor(int convertFlag, const char* fileName, const Char_t* name) 
@@ -229,6 +227,7 @@ Int_t StRHICfSimConvertor::ConvertMuDst2SimDst()
     mMcTrkArray = mMuDst -> mcArray(1); 
 
     int primaryTrkNum = 0;
+    int propagatedTrkNum = 0;
     int mcTrkNum = mMcTrkArray -> GetEntriesFast();
     for(int i=0; i<mcTrkNum; i++){
         mMcTrk = (StMuMcTrack*)mMcTrkArray -> UncheckedAt(i);
@@ -278,14 +277,17 @@ Int_t StRHICfSimConvertor::ConvertMuDst2SimDst()
         mSimTrk -> SetVertexStart(posStart[0], posStart[1], posStart[2]);
         mSimTrk -> SetVertexEnd(posEnd[0], posEnd[1], posEnd[2]);
         
-        if(IsSimPropagate(mSimTrk)){mSimTrk->SetIsSimPropagate();}
+        if(IsSimPropagate(mSimTrk)){
+            mSimTrk->SetIsSimPropagate();
+            propagatedTrkNum++;
+        }
 
         // find a RHICf gamma or neutron
-        if(gePid == 1 || gePid == 13){
+        if(pid == 22 || pid == 2112){
             int hit = GetRHICfGeoHit(posStart[0], posStart[1], posStart[2], mom[0], mom[1], mom[2], energy);
             if(hit != -1){
-                if(gePid == 1){mRHICfGammaIdx.push_back(mSimDst->GetSimTrackNum()-1);} // gamma
-                if(gePid == 13){mRHICfNeuIdx.push_back(mSimDst->GetSimTrackNum()-1);} // neutron
+                if(pid == 22){mRHICfGammaIdx.push_back(mSimDst->GetSimTrackNum()-1);} // gamma
+                if(pid == 2112){mRHICfNeuIdx.push_back(mSimDst->GetSimTrackNum()-1);} // neutron
             }
             else{if(isPrimary){mSimTrk -> SetIsPrimary();}}
         }
@@ -336,6 +338,12 @@ Int_t StRHICfSimConvertor::ConvertMuDst2SimDst()
     GetGeneratorData();
 
     mSimDstTree -> Fill();
+
+    // Event Summary print
+    LOG_INFO << "StRHICfSimConvertor::ConvertMuDst2SimDst() -- Event Summary" << endm;
+    LOG_INFO << "Process Id: " << mSimEvent -> GetProcessId() << endm;
+    LOG_INFO << "Primary Trk Num: " << primaryTrkNum << ",  Propagated Trk Num: " << propagatedTrkNum << endm;
+    LOG_INFO << "RHICf Gamma Num: " << mRHICfGammaIdx.size() << ",  RHICf Neutron Num: " << mRHICfNeuIdx.size() << endm;
 
     return kStOk;
 }
@@ -711,19 +719,19 @@ void StRHICfSimConvertor::InitRHICfGeometry()
     double mRHICfTowerBoundary[2][4][2]; // [TS, TL][bound square][x, y]
     double mRHICfTowerCenterPos[2]; // [TS, TL] y pos
 
-    double tsDetSize = 20.; // [mm]
-    double tlDetSize = 40.; // [mm]
-    double detBoundCut = 2.; // [mm]
-    double distTStoTL = 47.4; // [mm]
-    double detBeamCenter = 0.;
+    double tsDetSize = 2.; // [cm]
+    double tlDetSize = 4.; // [cm]
+    double detBoundCut = 0.2; // [cm]
+    double distTStoTL = 4.74; // [cm]
+    double detBeamCenter = 0.; // [cm]
 
     if(mRHICfRunType < rTStype || mRHICfRunType > rTOPtype){
         LOG_ERROR << "StRHICfSimConvertor::InitRHICfGeometry() warning!!! RHICf run type is not setted!!!" << endm;
     }
 
     if(mRHICfRunType == rTStype){detBeamCenter = 0.;} // TS
-    if(mRHICfRunType == rTLtype){detBeamCenter = -47.4;} // TL
-    if(mRHICfRunType == rTOPtype){detBeamCenter = 21.6;} // TOP
+    if(mRHICfRunType == rTLtype){detBeamCenter = -4.74;} // TL
+    if(mRHICfRunType == rTOPtype){detBeamCenter = 2.16;} // TOP
 
     mRHICfTowerBoundary[0][0][0] = sqrt(2)*((tsDetSize - detBoundCut*2.)/2.); 
     mRHICfTowerBoundary[0][0][1] = 0.;
@@ -775,7 +783,7 @@ Int_t StRHICfSimConvertor::GetRHICfGeoHit(double posX, double posY, double posZ,
 
   if(unitVecZ < 0){return -1;} // opposite side cut
 
-  double mRHICfDetZ = 17800.; // [mm]
+  double mRHICfDetZ = 1780.; // [cm]
   double z = mRHICfDetZ - posZ;
   if(z < 0.){return -1;} // create z-position cut
 

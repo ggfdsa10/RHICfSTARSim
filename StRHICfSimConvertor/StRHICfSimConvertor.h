@@ -32,8 +32,6 @@ class StRHICfSimEvent;
 class StRHICfSimTrack;
 class StRHICfSimBBC;
 class StRHICfSimBTof;
-class StRHICfSimRHICfHit;
-class StRHICfSimRHICfPoint;
 class StRHICfSimZDC;
 
 using namespace std;
@@ -89,8 +87,6 @@ class StRHICfSimConvertor : public StMaker
 		StRHICfSimTrack* mSimTrk;
 		StRHICfSimBBC* mSimBBC;
 		StRHICfSimBTof* mSimBTof;
-		StRHICfSimRHICfHit* mSimRHICfHit;
-		StRHICfSimRHICfPoint* mSimRHICfPoint;
 		StRHICfSimZDC* mSimZDC;
 
 		// MuDst Coll
