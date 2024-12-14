@@ -43,102 +43,24 @@ int main(int argc,char** argv)
     else{geantSeed = simOpt->GetOptInt("SEED1");}
     G4Random::setTheSeed(geantSeed);
 
-  // reco ========================================================
-
-  /// Reconstruction mode: reconstruct and exit
-  // std::string reco=vm["RECONSTRUCT"].as<std::string>();
-  // if(reco=="TRUE") {
-  //   G4cout << "Reconstruction mode" << G4endl;
-
-  //   /// Set output
-  //   fs::path foutput;
-  //   foutput=vm["OUTPUTFILE"].as<fs::path>();
-  //   /// Prepare output file
-  //   if(foutput.branch_path()!="" && !fs::exists(foutput.branch_path())) {
-  //     boost::system::error_code error;
-  //     const bool result=fs::create_directories(foutput.branch_path(), error);
-  //     if(!result || error) {
-	// std::string mes="Could not create directory "+foutput.branch_path().string()+".";
-	// G4Exception("rhicf","Invalid Directory",FatalException,mes.c_str());
-  //     }
-  //   }
-
-    // /// Set input
-    // fs::path finput;
-    // finput=vm["INPUTFILE"].as<fs::path>();
-    // TFile *fin=new TFile(finput.string().c_str());
-    // if(!fin->IsZombie()) {
-    //   TTree *tin=(TTree*)fin->Get("RunInfo");
-
-    //   RunInfo* runInfo=new RunInfo();
-    //   tin->SetBranchAddress("RunInfo",&runInfo);
-    //   tin->GetEntry(0);
-    // }else{
-    //   G4cerr << finput.string() << " does not exist!" << G4endl;
-    //   exit(1);
-    // }
-
-    // /// Set tables
-    // fs::path ftables;
-    // try{
-    //   ftables=vm["TABLESDIR"].as<fs::path>();
-    // }catch(const boost::bad_any_cast& ex) {
-    //   G4cout << ex.what() << G4endl;
-    //   exit(1);
-    // }
-    // if(!fs::exists(ftables)) {
-    //   std::string mes="Directory "+ ftables.string() +" does not exist.";
-    //   G4Exception("rhicf","Invalid Directory",FatalException,mes.c_str());
-    // }
-
-  //   G4cout << "Input:  " << finput.string()  << G4endl;
-  //   G4cout << "Output: " << foutput.string() << G4endl;
-
-  //   TFile *fout=new TFile(foutput.string().c_str(),"recreate");
-  //   TTree *trun_out=new TTree("RunInfo", "RunInfo");
-  //   TTree *tevent_out=new TTree("EventInfo", "EventInfo");
-  //   RunInfo* runInfo_out=new RunInfo();
-  //   trun_out->Branch("RunInfo", &runInfo_out);
-  //   RHICfSimEvent* simEvent_out=new RHICfSimEvent();
-  //   tevent_out->Branch("SimEvent", &simEvent_out);
-  //   RHICfReconstruction* reconstruction=new RHICfReconstruction(new TFile(finput.string().c_str()),fout,ftables);
-
-  //   trun_out->Print();
-  //   tevent_out->Print();
-
-  //   fout->cd();
-  //   trun_out->SetDirectory(fout);
-  //   trun_out->Write();
-  //   tevent_out->SetDirectory(fout);
-  //   tevent_out->Write();
-
-  //   fout->Close();
-
-  //   return 1;
-  // }else if(reco=="FALSE") {
-  // }else{
-  //   G4Exception("rhicf","Invalid opttion",FatalException,"RECONSTRUCT option: choose TRUE or FALSE");
-  // }
-  // reco end =====================================
-
     // Construct the default run manager
     G4RunManager* runManager = new G4RunManager;
 
     RHICfDetectorConstruction* detector = new RHICfDetectorConstruction();
-    runManager->SetUserInitialization(detector);
-
     G4VUserPhysicsList* physics = new RHICfPhysicsList("QGSP_BERT");
+
+    runManager->SetUserInitialization(detector);
     runManager->SetUserInitialization(physics);
 
     G4UserRunAction* runAction = new RHICfRunAction();
-    runManager->SetUserAction(runAction);
     RHICfPrimaryGeneratorAction* genAction = new RHICfPrimaryGeneratorAction();
-    runManager->SetUserAction(genAction);
     G4UserEventAction* eventAction = new RHICfEventAction();
-    runManager->SetUserAction(eventAction);
     G4UserTrackingAction* trackAction = new RHICfTrackingAction();
-    runManager->SetUserAction(trackAction);
 
+    runManager->SetUserAction(runAction);
+    runManager->SetUserAction(genAction);
+    runManager->SetUserAction(eventAction);
+    runManager->SetUserAction(trackAction);
 
     // Initialize G4 kernel
     runManager->Initialize();
