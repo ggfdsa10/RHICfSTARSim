@@ -170,9 +170,32 @@ void RHICfEventAction::EndOfEventAction(const G4Event* evt)
     // ================ Reconstruction ================
     fRHICfReco -> SetSimDst(fSimDst);
     fRHICfReco -> Clear();
-
     fRHICfReco -> MakeResponse();
+    fRHICfReco -> Reconstruct();
+
+    // test !!!!! ====================
+    cout << " ============================= " << endl;
+
+    double sumdE = 0.;
+    for(int it=0; it<ntower; it++){
+        for(int ip=0; ip<nplate; ip++){
+            sumdE += fSimRHICfHit -> GetPlatedE(it, ip);
+        }
+    } 
+    cout << " Plate Sum Energy : " << sumdE << endl;
+    for(int i=0; i<parSimTrkIdxArr.size(); i++){
+        int simTrkId = parSimTrkIdxArr[i];
+        fSimTrack = fSimDst -> GetSimTrack(simTrkId);
+        int pid = fSimTrack -> GetPid();
+        double e = fSimTrack -> GetE();
+        double vxEnd = fSimTrack -> GetVxEnd();
+        double vyEnd = fSimTrack -> GetVyEnd();
+        double vzEnd = fSimTrack -> GetVzEnd();
+
+        cout << "pid: " << pid << ", energy: " << e << " | vertex: (" << vxEnd << ", " << vyEnd << ", " << vzEnd<< ") " << endl;
+    }
     
+
     // Fill the Output SimDst Tree
     fOutputTree -> Fill();
 
@@ -182,11 +205,9 @@ void RHICfEventAction::EndOfEventAction(const G4Event* evt)
 
 void RHICfEventAction::EventPrint()
 {
-    cout << "RHICfEventAction::EventPrint()" << endl;
-    cout << "    StRHICfSimEvent -- Event: " << fSimEvent -> GetEventNumber() << ", ";
-
+    cout << "RHICfEventAction::EventPrint() -- Event: " << fSimEvent -> GetEventNumber() << endl;
     TString procName = fSimUtil -> GetProcessName(fSimEvent -> GetProcessId());
-    cout << "Process: " << procName << endl;
+    cout << "    StRHICfSimEvent -- Process: " << procName << endl;
 
     cout << "    StRHICfSimTrack -- Primary Trk Num: " << fSimEvent -> GetPrimaryTrkNum() << ", ";
     cout << "Propagated Trk Num: " << (fGenAction -> GetParSimTrkIdxArray()).size() << endl;

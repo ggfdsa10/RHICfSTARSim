@@ -78,6 +78,8 @@ class RHICfEventAction: public G4UserEventAction
         StRHICfSimRHICfHit* fSimRHICfHit;
         StRHICfSimZDC* fSimZDC;
 
+        StRHICfSimTrack* fSimTrack; // test
+
         // RHICf Reconstruction
         RHICfReconstruction* fRHICfReco;
 
