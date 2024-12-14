@@ -75,6 +75,7 @@ void RHICfSimOptions::SetInputOption(int num,char** par)
                 if(mode == "STARSIM"){
                     TString inputFile = GetOptString("INPUT");
                     inputFile = GetExistROOTFile(inputFile); // Check the one RHICfSimDst.root file or STAR job
+                    AddOpt("AUTOINPUT", inputFile);
 
                     TFile* file = new TFile(inputFile, "READ");
                     TTree* tree = (TTree*)file -> Get("StRHICfSimDst");
