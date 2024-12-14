@@ -12,7 +12,6 @@
 #include "StRHICfSimBTof.h"
 #include "StRHICfSimBBC.h"
 #include "StRHICfSimRHICfHit.h"
-#include "StRHICfSimRHICfPoint.h"
 #include "StRHICfSimZDC.h"
 
 using namespace std;
@@ -35,12 +34,10 @@ class StRHICfSimDst : public TObject
         StRHICfSimBTof* GetSimBTof(int idx);
         StRHICfSimBBC* GetSimBBC();
         StRHICfSimRHICfHit* GetSimRHICfHit();
-        StRHICfSimRHICfPoint* GetSimRHICfPoint(int idx);
         StRHICfSimZDC* GetSimZDC();
 
         Int_t GetSimTrackNum();
         Int_t GetSimBTofNum();
-        Int_t GetSimRHICfPointNum(); 
     
     private:
         StRHICfSimEvent* mSimEvent = 0;
@@ -48,7 +45,6 @@ class StRHICfSimDst : public TObject
         TClonesArray* mSimBTofArray = 0;
         StRHICfSimBBC* mSimBBC = 0;
         StRHICfSimRHICfHit* mSimRHICfHit = 0;
-        TClonesArray* mSimRHICfPointArray = 0;
         StRHICfSimZDC* mSimZDC = 0;
         
     ClassDef(StRHICfSimDst, 1)
