@@ -46,7 +46,8 @@ void RHICfRunAction::BeginOfRunAction(const G4Run* aRun)
 		fSimDst = new StRHICfSimDst();
 		fSimDst -> ReadDstArray(fInSimDstTree);
 
-		fOutSimDstFile = new TFile("/star/u/slee5/rhicfSim/rhicfsimv10test/rhicf/testRHICfSimDst.root", "RECREATE");
+		TString outputFileName = fSimOpt -> GetOptString("OUTPUT");
+		fOutSimDstFile = new TFile(outputFileName, "RECREATE");
         fOutSimDstTree = fInSimDstTree -> CloneTree(0);
 
 		genAction -> SetInputSimDstTree(fInSimDstTree);
@@ -58,7 +59,7 @@ void RHICfRunAction::BeginOfRunAction(const G4Run* aRun)
 		trackingAction -> SetSimDst(fSimDst);
 	}
 	else{
-		
+		// To be updated for HepMC mode...
 	}
 
 	G4cout << "RHICfRunAction::BeginOfRunAction() -- Estimated number of event: " << fSimOpt -> GetOptInt("eventNum") << " start." << G4endl;
@@ -66,11 +67,8 @@ void RHICfRunAction::BeginOfRunAction(const G4Run* aRun)
 
 void RHICfRunAction::EndOfRunAction(const G4Run*)
 {
-	fInSimDstFile -> Close();
-
 	fOutSimDstFile -> cd();
 	fOutSimDstTree -> Write();
-	fOutSimDstFile -> Close();
 
     cout << "RHICfRunAction::EndOfRunAction() -- Number of event: " << fOutSimDstTree->GetEntries() << " done." << endl;
 }

@@ -1,6 +1,5 @@
 #include "RHICfEventAction.hh"
 
-
 RHICfEventAction::RHICfEventAction()
 {
     fSimUtil = RHICfSimUtil::GetRHICfSimUtil();
