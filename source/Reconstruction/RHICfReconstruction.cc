@@ -54,10 +54,6 @@ void RHICfReconstruction::Init()
     }
 }
 
-void RHICfReconstruction::Clear()
-{
-}
-
 void RHICfReconstruction::MakeResponse()
 {
     fSimRHICfHit = fSimDst -> GetSimRHICfHit();

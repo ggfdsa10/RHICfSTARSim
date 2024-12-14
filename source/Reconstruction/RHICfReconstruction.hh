@@ -28,10 +28,8 @@ public:
     ~RHICfReconstruction();
 
     void Init();
-    void Clear();
 
     void OnlyResponseMode(){fRecoMode = false;}
-
     void SetSimDst(StRHICfSimDst* simDst){fSimDst = simDst;}
     
     void MakeResponse();
