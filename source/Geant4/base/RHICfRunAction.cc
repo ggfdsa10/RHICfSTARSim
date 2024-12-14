@@ -33,7 +33,10 @@ void RHICfRunAction::BeginOfRunAction(const G4Run* aRun)
 	RHICfEventAction* eventAction = (RHICfEventAction*)runManager->GetUserEventAction();
 	RHICfTrackingAction* trackingAction = (RHICfTrackingAction*)runManager->GetUserTrackingAction();
 
-	TString inputFile = fSimOpt -> GetOptString("INPUT");
+	TString inputFile = "";
+	if(fSimOpt->CheckOpt("AUTOINPUT")){inputFile = fSimOpt -> GetOptString("AUTOINPUT");}
+	else{inputFile = fSimOpt -> GetOptString("INPUT");}
+	
 	if(fSimUtil->IsStarSimMode()){
 		fInSimDstFile = new TFile(inputFile, "READ");
 		if(!fInSimDstFile){
