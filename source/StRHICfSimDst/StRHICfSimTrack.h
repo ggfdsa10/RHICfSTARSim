@@ -38,6 +38,7 @@ class StRHICfSimTrack : public TObject
         Double_t GetPx();
         Double_t GetPy();
         Double_t GetPz();
+        Double_t GetPt();
         Double_t GetEta();
         Double_t GetVxStart();
         Double_t GetVyStart();

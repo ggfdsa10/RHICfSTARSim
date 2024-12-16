@@ -20,17 +20,11 @@ class StRHICfSimZDC : public TObject
         void SetPmtdE(int idx, float val);
         void SetSMDdE(int xy, int idx, float val);
 
-        void SetPmtADC(int idx, int val);
-        void SetSMDADC(int xy, int idx, int val);
-
         void SetSimTrkId(int id);
 
         Int_t GetPmtPhotonNum(int idx);
         Float_t GetPmtdE(int idx);
         Float_t GetSMDdE(int xy, int idx);
-
-        Int_t GetPmtADC(int idx);
-        Int_t GetSMDADC(int xy, int idx);
 
         Int_t GetSimTrkNum();
         Int_t GetSImTrkId(int idx);
@@ -40,10 +34,6 @@ class StRHICfSimZDC : public TObject
         Float_t mPmtdE[rZDCPMTNum];
         Float_t mSMDXdE[rSMDXNum]; 
         Float_t mSMDYdE[rSMDYNum];
-
-        Int_t mPmtADC[rZDCPMTNum];
-        Int_t mSMDXADC[rSMDXNum];
-        Int_t mSMDYADC[rSMDYNum];
 
         vector<int> mSimTrkId;
 

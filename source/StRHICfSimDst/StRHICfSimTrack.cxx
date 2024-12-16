@@ -64,6 +64,7 @@ Double_t StRHICfSimTrack::GetE(){return mEnergy;}
 Double_t StRHICfSimTrack::GetPx(){return mMom[0];}
 Double_t StRHICfSimTrack::GetPy(){return mMom[1];}
 Double_t StRHICfSimTrack::GetPz(){return mMom[2];}
+Double_t StRHICfSimTrack::GetPt(){return sqrt(mMom[0]*mMom[0] + mMom[1]*mMom[1]);}
 
 Double_t StRHICfSimTrack::GetEta()
 {
