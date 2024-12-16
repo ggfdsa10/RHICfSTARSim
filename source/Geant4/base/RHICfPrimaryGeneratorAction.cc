@@ -1,5 +1,4 @@
 #include "RHICfPrimaryGeneratorAction.hh"
-// #include "HepMCG4AsciiReader.hh"
 
 
 RHICfPrimaryGeneratorAction::RHICfPrimaryGeneratorAction()

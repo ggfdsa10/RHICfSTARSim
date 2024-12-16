@@ -6,9 +6,6 @@
 #include <cstdlib>
 #include <unistd.h>
 
-// #include "HepMC/IO_GenEvent.h"
-// #include "HepMCG4AsciiReader.hh"
-
 #include "RHICfRunAction.hh"
 #include "RHICfPrimaryGeneratorAction.hh"
 #include "RHICfEventAction.hh"
@@ -20,7 +17,6 @@ RHICfRunAction::RHICfRunAction():G4UserRunAction()
 
 RHICfRunAction::~RHICfRunAction()
 {
-
 }
 
 void RHICfRunAction::BeginOfRunAction(const G4Run* aRun)
