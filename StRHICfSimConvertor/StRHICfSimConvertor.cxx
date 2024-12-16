@@ -31,9 +31,8 @@
 #include "StRHICfPool/StRHICfSimDst/StRHICfSimZDC.h"
 
 StRHICfSimConvertor::StRHICfSimConvertor(int convertFlag, const char* fileName, const Char_t* name) 
-: StMaker(name), mConvertFlag(convertFlag), mInputFile(fileName), mRHICfRunType(-1)
+: StMaker(name), mInputFile(fileName), mRHICfRunType(-1)
 {
-    InitGePid2PDG();
 }
 
 StRHICfSimConvertor::~StRHICfSimConvertor()
@@ -42,19 +41,14 @@ StRHICfSimConvertor::~StRHICfSimConvertor()
 
 Int_t StRHICfSimConvertor::Init()
 {
-    if(mConvertFlag == kMuDst2SimDst){InitMuDst2SimDst();}
-    if(mConvertFlag == kSimDst2MuDst){InitSimDst2MuDst();}
-
+    InitMuDst2SimDst();
     return kStOk;
 }
 
 Int_t StRHICfSimConvertor::Make()
 {
     LOG_INFO << "StRHICfSimConvertor::Make()" << endm;
-
-    if(mConvertFlag == kMuDst2SimDst){ConvertMuDst2SimDst();}
-    if(mConvertFlag == kSimDst2MuDst){ConvertSimDst2MuDst();}
-                    
+    ConvertMuDst2SimDst();
     return kStOk;
 }
 
@@ -69,60 +63,6 @@ Int_t StRHICfSimConvertor::Finish()
 
 Int_t StRHICfSimConvertor::clear()
 {
-    return kStOk;
-}
-
-Int_t StRHICfSimConvertor::InitGePid2PDG()
-{
-    mGePid2PDGMap.insert({1, 22}); // gamma
-    mGePid2PDGMap.insert({2, -11}); // positron
-    mGePid2PDGMap.insert({3, 11}); // electron
-    mGePid2PDGMap.insert({4, 12}); // neutrino
-    mGePid2PDGMap.insert({5, -13}); // mu+
-    mGePid2PDGMap.insert({6, 13}); // mu-
-    mGePid2PDGMap.insert({7, 111}); // pi0
-    mGePid2PDGMap.insert({8, 211}); // pi+
-    mGePid2PDGMap.insert({9, -211}); // pi-
-    mGePid2PDGMap.insert({10, 130}); // K0 Long
-    mGePid2PDGMap.insert({11, 321}); // K+
-    mGePid2PDGMap.insert({12, -321}); // K-
-    mGePid2PDGMap.insert({13, 2112}); // neutron
-    mGePid2PDGMap.insert({14, 2212}); // proton
-    mGePid2PDGMap.insert({15, -2212}); // anti proton
-    mGePid2PDGMap.insert({16, 310}); // K0 Short
-    mGePid2PDGMap.insert({17, 221}); // eta
-    mGePid2PDGMap.insert({18, 3122}); // lambda
-    mGePid2PDGMap.insert({19, 3222}); // sigma+
-    mGePid2PDGMap.insert({20, 3212}); // sigma0
-    mGePid2PDGMap.insert({21, 3112}); // sigma-
-    mGePid2PDGMap.insert({22, 3322}); // xi0
-    mGePid2PDGMap.insert({23, 3312}); // xi-
-    mGePid2PDGMap.insert({24, 3334}); // omega
-    mGePid2PDGMap.insert({25, -2112}); // anti neutron
-    mGePid2PDGMap.insert({26, -3122}); // anti lambda
-    mGePid2PDGMap.insert({27, -3112}); // anti sigma-
-    mGePid2PDGMap.insert({28, -3212}); // anti sigma0
-    mGePid2PDGMap.insert({29, -3222}); // anti sigma+
-    mGePid2PDGMap.insert({30,-3322}); // anti xi0
-    mGePid2PDGMap.insert({31, -3312}); // anti xi+
-    mGePid2PDGMap.insert({32, -3334}); // anti omega+
-    mGePid2PDGMap.insert({33, -15}); // tau+
-    mGePid2PDGMap.insert({34, 15}); // tau-
-    mGePid2PDGMap.insert({35, 441}); // D+
-    mGePid2PDGMap.insert({36, -441}); // D-
-    mGePid2PDGMap.insert({37, 421}); // D0
-    mGePid2PDGMap.insert({38, -421}); // anti D0
-    mGePid2PDGMap.insert({39, 431}); // Ds+ or f+ ??
-    mGePid2PDGMap.insert({40, -431}); // Ds- or f- ??
-    mGePid2PDGMap.insert({41, 4212}); // lambda c+
-    mGePid2PDGMap.insert({42, 24}); // W+
-    mGePid2PDGMap.insert({43, -24}); // W-
-    mGePid2PDGMap.insert({44, 23}); // Z0
-    mGePid2PDGMap.insert({45, 700201}); // deuteron
-    mGePid2PDGMap.insert({46, 700301}); // tritium
-    mGePid2PDGMap.insert({47, 700202}); // alpha
-    mGePid2PDGMap.insert({48, 0}); // genatino
-
     return kStOk;
 }
 
@@ -194,6 +134,8 @@ Int_t StRHICfSimConvertor::InitMuDst2SimDst()
 
     InitRHICfGeometry();
 
+    mDatabasePDG = new TDatabasePDG();
+
     return kStOk;
 }
 
@@ -260,6 +202,8 @@ Int_t StRHICfSimConvertor::ConvertMuDst2SimDst()
         int trkId = mMcTrk -> Id() -1; // starting of track Id from 0 index
         int gePid = mMcTrk -> GePid();
         int pid = GetGePid2PDG(gePid);
+        if(pid == 0){continue;} // for invaild PDG Encoding
+        
         double energy = mMcTrk -> E();
         double mom[3];
         mom[0] = mMcTrk -> Pxyz().x();
@@ -703,10 +647,11 @@ bool StRHICfSimConvertor::IsSimPropagate(StRHICfSimTrack* simTrk)
 
 Int_t StRHICfSimConvertor::GetGePid2PDG(int gepid)
 {
-    if(mGePid2PDGMap.find(gepid) != mGePid2PDGMap.end()) {
-        return mGePid2PDGMap.find(gepid)->second;
-    }
-    return 0;
+    if(gepid == 45){return 1000010020;} // Deuteron case
+    if(gepid == 46){return 1000010030;} // Triron case
+    if(gepid == 47){return 1000020040;} // Alpha case
+
+    return mDatabasePDG -> ConvertGeant3ToPdg(gepid);
 }
 
 Int_t StRHICfSimConvertor::ConvertSimDst2MuDst()

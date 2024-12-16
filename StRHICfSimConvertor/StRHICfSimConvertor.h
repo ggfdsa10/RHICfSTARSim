@@ -12,6 +12,7 @@
 #include "TClonesArray.h"
 #include "TH2Poly.h"
 #include "TObjString.h"
+#include "TDatabasePDG.h"
 
 #include "StMaker.h"
 
@@ -47,8 +48,6 @@ class StRHICfSimConvertor : public StMaker
 		StRHICfSimConvertor(int convertFlag, const char* fileName, const Char_t* name="RHICfSimConvertor");
 		~StRHICfSimConvertor();
 
-		// void DoMuDst2SimDst(); // Make the RHICf MC input file
-		// void DoSimDst2MuDst(); // for RHICf MC Reco
 		void SetRHICfRunType(int type){mRHICfRunType = type;}
 
 		Int_t Init();
@@ -57,7 +56,6 @@ class StRHICfSimConvertor : public StMaker
 		Int_t clear();
 
 	private:
-		Int_t InitGePid2PDG();
 		Int_t InitMuDst2SimDst();
 		Int_t InitSimDst2MuDst();
 
@@ -72,12 +70,12 @@ class StRHICfSimConvertor : public StMaker
 		void InitRHICfGeometry();
 		Int_t GetRHICfGeoHit(double posX, double posY, double posZ, double px, double py, double pz, double e);
 
-		int mConvertFlag;
 		TString mInputFile;
 		TString mOutputFile;
 		Int_t mRHICfRunType;
 
 		TH2Poly* mRHICfPoly;
+		TDatabasePDG* mDatabasePDG;
 
 		// SimDst Coll
 		TFile* mSimDstFile;
@@ -110,9 +108,6 @@ class StRHICfSimConvertor : public StMaker
 
 		vector<int> mRHICfGammaIdx;
 		vector<int> mRHICfNeuIdx;
-
-		// GePid - PDG encoding macthing
-		map<int, int> mGePid2PDGMap;
 
 	ClassDef(StRHICfSimConvertor,0);
 };
