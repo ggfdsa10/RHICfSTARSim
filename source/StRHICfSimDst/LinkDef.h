@@ -10,6 +10,7 @@
 #pragma link C++ class StRHICfSimBBC;
 #pragma link C++ class StRHICfSimBTof;
 #pragma link C++ class StRHICfSimRHICfHit;
+#pragma link C++ class StRHICfSimRHICfPoint;
 #pragma link C++ class StRHICfSimZDC;
 
 #endif

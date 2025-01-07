@@ -16,6 +16,7 @@ void StRHICfSimEvent::Clear(Option_t *option)
     mEventNumber = -999;
     mProcessId = -999;
     mRHICfRunType = -999;
+    mGeneratorName = "";
 
     mXParton1 = -999.; 
     mXParton2 = -999.; 
@@ -37,13 +38,12 @@ void StRHICfSimEvent::Clear(Option_t *option)
     mGenFinalParNum = -999;
     mGenFinalChargedParNum = -999; 
     mPrimaryTrkNum = -999;
-    mRHICfPi0Num = -999;
-    mRHICfNeuNum = -999;
 }
 
 void StRHICfSimEvent::SetEventNumber(int idx){mEventNumber = idx;}
 void StRHICfSimEvent::SetProcessId(int id){mProcessId = id;}
 void StRHICfSimEvent::SetRHICfRunType(int type){mRHICfRunType = type;}
+void StRHICfSimEvent::SetGeneratorName(TString name){mGeneratorName = name;}
 
 void StRHICfSimEvent::SetXParton1(double val){mXParton1 = val;}
 void StRHICfSimEvent::SetXParton2(double val){mXParton2 = val;}
@@ -65,12 +65,11 @@ void StRHICfSimEvent::SetDiffractionCEta(double val){mDiffCEta = val;}
 void StRHICfSimEvent::SetGenFinalParNum(int num){mGenFinalParNum = num;}
 void StRHICfSimEvent::SetGenFinalChargedParNum(int num){mGenFinalChargedParNum = num;}
 void StRHICfSimEvent::SetPrimaryTrkNum(int num){mPrimaryTrkNum = num;}
-void StRHICfSimEvent::SetRHICfPi0Num(int num){mRHICfPi0Num = num;}
-void StRHICfSimEvent::SetRHICfNeuNum(int num){mRHICfNeuNum = num;}
 
 Int_t StRHICfSimEvent::GetEventNumber(){return mEventNumber;}
 Int_t StRHICfSimEvent::GetProcessId(){return mProcessId;}
 Int_t StRHICfSimEvent::GetRHICfRunType(){return mRHICfRunType;}
+TString StRHICfSimEvent::GetGeneratorName(){return mGeneratorName;}
 
 Double_t StRHICfSimEvent::GetXParton1(){return mXParton1;}
 Double_t StRHICfSimEvent::GetXParton2(){return mXParton2;}
@@ -92,5 +91,3 @@ Double_t StRHICfSimEvent::GetDiffractionCEta(){return mDiffCEta;}
 Int_t StRHICfSimEvent::GetGenFinalParNum(){return mGenFinalParNum;}
 Int_t StRHICfSimEvent::GetGenFinalChargedParNum(){return mGenFinalChargedParNum;}
 Int_t StRHICfSimEvent::GetPrimaryTrkNum(){return mPrimaryTrkNum;}
-Int_t StRHICfSimEvent::GetRHICfPi0Num(){return mRHICfPi0Num;}
-Int_t StRHICfSimEvent::GetRHICfNeuNum(){return mRHICfNeuNum;}

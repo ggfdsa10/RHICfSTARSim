@@ -8,8 +8,8 @@ enum SimProcessPar{
 };
 
 enum SimRHICfRunTypePar{
-    rTStype = 0,
-    rTLtype = 1,
+    rTLtype = 0,
+    rTStype = 1,
     rTOPtype = 2
 };
 

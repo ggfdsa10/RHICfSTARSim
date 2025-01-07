@@ -2,6 +2,7 @@
 #define StRHICfSimEvent_HH
 
 #include "TObject.h"
+#include "TString.h"
 
 class StRHICfSimEvent : public TObject
 {
@@ -15,6 +16,7 @@ class StRHICfSimEvent : public TObject
         void SetEventNumber(int idx);
         void SetProcessId(int id);
         void SetRHICfRunType(int type);
+        void SetGeneratorName(TString name);
 
         // Event generator information
         void SetXParton1(double val);
@@ -37,12 +39,11 @@ class StRHICfSimEvent : public TObject
         void SetGenFinalParNum(int num);
         void SetGenFinalChargedParNum(int num);
         void SetPrimaryTrkNum(int num);
-        void SetRHICfPi0Num(int num);
-        void SetRHICfNeuNum(int num);
 
         Int_t GetEventNumber();
         Int_t GetProcessId();
         Int_t GetRHICfRunType();
+        TString GetGeneratorName();
 
         Double_t GetXParton1();
         Double_t GetXParton2();
@@ -64,13 +65,12 @@ class StRHICfSimEvent : public TObject
         Int_t GetGenFinalParNum();
         Int_t GetGenFinalChargedParNum();
         Int_t GetPrimaryTrkNum(); // MuMcTrack::IdVx() == 1 tracks number
-        Int_t GetRHICfPi0Num();
-        Int_t GetRHICfNeuNum();
 
     private:
         Int_t mEventNumber;
         Int_t mProcessId;
         Int_t mRHICfRunType;
+        TString mGeneratorName;
 
         Double_t mXParton1; // x of blue beam parton
         Double_t mXParton2; // x of yellow beam parton
@@ -92,8 +92,6 @@ class StRHICfSimEvent : public TObject
         Int_t mGenFinalParNum;  // generator level final particle number
         Int_t mGenFinalChargedParNum;  // generator level final charged particle number
         Int_t mPrimaryTrkNum; // STAR simulation level primary trk number (NOT exactly same as nubmer of track has SimTrk::Primary() = true)
-        Int_t mRHICfPi0Num;
-        Int_t mRHICfNeuNum;
 
     ClassDef(StRHICfSimEvent,1)
 };
