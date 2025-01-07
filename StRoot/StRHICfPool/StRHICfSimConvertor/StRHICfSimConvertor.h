@@ -15,6 +15,7 @@
 #include "TDatabasePDG.h"
 
 #include "StMaker.h"
+#include "StRHICfPointMaker/StRHICfPointMaker.h"
 
 class StEvent;
 class StMuEvent;
@@ -33,7 +34,16 @@ class StRHICfSimEvent;
 class StRHICfSimTrack;
 class StRHICfSimBBC;
 class StRHICfSimBTof;
+class StRHICfSimRHICfHit;
+class StRHICfSimRHICfPoint;
 class StRHICfSimZDC;
+
+class StRHICfCollection;
+class StMuRHICfCollection;
+class StRHICfHit;
+class StRHICfPoint;
+class StMuRHICfHit;
+class StMuRHICfPoint;
 
 using namespace std;
 
@@ -41,7 +51,7 @@ class StRHICfSimConvertor : public StMaker
 {
 	enum kConvertFlag{
 		kMuDst2SimDst = 0,
-		kSimDst2MuDst = 1
+		kSimRecoMode = 1
 	};
 
 	public: 
@@ -57,22 +67,25 @@ class StRHICfSimConvertor : public StMaker
 
 	private:
 		Int_t InitMuDst2SimDst();
-		Int_t InitSimDst2MuDst();
-
 		Int_t ConvertMuDst2SimDst();
 		Int_t GetGeneratorData();
 
 		bool IsSimPropagate(StRHICfSimTrack* simTrk);
 		Int_t GetGePid2PDG(int gepid);
 
-		Int_t ConvertSimDst2MuDst();
-
 		void InitRHICfGeometry();
 		Int_t GetRHICfGeoHit(double posX, double posY, double posZ, double px, double py, double pz, double e);
 
+		Int_t InitSimRecoMode();
+		Int_t FillMCData();
+		Int_t RecoSimulation();
+		Int_t SaveRecoData();
+
+		Int_t mConvertFlag;
 		TString mInputFile;
 		TString mOutputFile;
 		Int_t mRHICfRunType;
+		TString mGeneratorName;
 
 		TH2Poly* mRHICfPoly;
 		TDatabasePDG* mDatabasePDG;
@@ -85,13 +98,14 @@ class StRHICfSimConvertor : public StMaker
 		StRHICfSimTrack* mSimTrk;
 		StRHICfSimBBC* mSimBBC;
 		StRHICfSimBTof* mSimBTof;
+		StRHICfSimRHICfHit* mSimRHICfHit;
+		StRHICfSimRHICfPoint* mSimRHICfPoint;
 		StRHICfSimZDC* mSimZDC;
 
 		// MuDst Coll
 		StMuDst* mMuDst;
 		StMuEvent* mMuEvent;
 		StEvent* mStEvent;
-		Long64_t mEvent;
 
 		TClonesArray* mMcVtxArray;
 		TClonesArray* mMcTrkArray;
@@ -108,6 +122,16 @@ class StRHICfSimConvertor : public StMaker
 
 		vector<int> mRHICfGammaIdx;
 		vector<int> mRHICfNeuIdx;
+
+		// Reconstruction Coll
+		Long64_t mEvent;
+		TFile* mOutSimDstFile;
+		TTree* mOutSimDstTree;
+		StRHICfPointMaker* mRHICfPointMaker;
+		StRHICfCollection* mRHICfColl;
+		StRHICfHit* mRHICfHit;
+		StRHICfPoint* mRHICfPoint;
+
 
 	ClassDef(StRHICfSimConvertor,0);
 };

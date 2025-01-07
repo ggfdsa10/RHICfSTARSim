@@ -32,9 +32,13 @@
 #include "StRHICfPool/StRHICfSimDst/StRHICfSimBTof.h"
 #include "StRHICfPool/StRHICfSimDst/StRHICfSimZDC.h"
 
+#include "StEvent/StEnumerations.h"
+#include "StEvent/StRHICfCollection.h"
+#include "StEvent/StRHICfHit.h"
+#include "StEvent/StRHICfPoint.h"
 
 StRHICfSimConvertor::StRHICfSimConvertor(int convertFlag, const char* fileName, const Char_t* name) 
-: StMaker(name), mInputFile(fileName), mRHICfRunType(-1)
+: StMaker(name), mConvertFlag(convertFlag), mInputFile(fileName), mRHICfRunType(-1)
 {
 }
 
@@ -44,14 +48,17 @@ StRHICfSimConvertor::~StRHICfSimConvertor()
 
 Int_t StRHICfSimConvertor::Init()
 {
-    InitMuDst2SimDst();
+    if(mConvertFlag == kMuDst2SimDst){InitMuDst2SimDst();}
+    if(mConvertFlag == kSimRecoMode){InitSimRecoMode();}
+
     return kStOk;
 }
 
 Int_t StRHICfSimConvertor::Make()
 {
     LOG_INFO << "StRHICfSimConvertor::Make()" << endm;
-    ConvertMuDst2SimDst();
+    if(mConvertFlag == kMuDst2SimDst){ConvertMuDst2SimDst();}
+    if(mConvertFlag == kSimRecoMode){RecoSimulation();}
 
     return kStOk;
 }
@@ -111,19 +118,25 @@ Int_t StRHICfSimConvertor::InitMuDst2SimDst()
             mOutputFile.ReplaceAll(".MuDst.root",".RHICfSimDst.root");
 
             generatorFile = muDstFile;
-            generatorFile.ReplaceAll(".MuDst.root", ".Pythia8.root");
+            generatorFile.ReplaceAll(".MuDst.root", ".genevents.root");
             int valid = mChain -> Add(generatorFile);
             if(valid == 0){
                 LOG_ERROR << "StRHICfSimConvertor::InitMuDst2SimDst() -- There is no Generator ROOT file !!! " << endm;
                 return kStErr;
             }
             LOG_INFO << Form("StRHICfSimConvertor::InitMuDst2SimDst() -- Find a Event generator file: %s",generatorFile.Data()) << endm;
+
+            if(mOutputFile.Index("StarSim_Pythia8") != -1){mGeneratorName = "Pythia8";}
+            if(mOutputFile.Index("StarSim_Herwig7") != -1){mGeneratorName = "Herwig7";}
+            if(mOutputFile.Index("StarSim_EPOSLHC") != -1){mGeneratorName = "EPOSLHC";}
+            if(mOutputFile.Index("StarSim_QGSJETII04") != -1){mGeneratorName = "QGSJETII04";}
+            if(mOutputFile.Index("StarSim_QGSJETIII") != -1){mGeneratorName = "QGSJETIII";}
         }
     }
 
     LOG_INFO << Form("StRHICfSimConvertor::InitMuDst2SimDst() -- Output file name: %s",mOutputFile.Data()) << endm;
     
-    mSimDstFile = new TFile(mOutputFile.Data(), "recreate");
+    mSimDstFile = new TFile(mOutputFile.Data(), "RECREATE");
     mSimDstTree = new TTree("StRHICfSimDst","StRHICfSimDst");
 
     mSimDst = new StRHICfSimDst();
@@ -143,8 +156,42 @@ Int_t StRHICfSimConvertor::InitMuDst2SimDst()
     return kStOk;
 }
 
-Int_t StRHICfSimConvertor::InitSimDst2MuDst()
+Int_t StRHICfSimConvertor::InitSimRecoMode()
 {
+    if(mInputFile.Length() == 0){
+        LOG_ERROR << "Input file is not a existing ... " << endm;
+        return kStErr;
+    }
+    else{
+        if(mInputFile.Index("rhicfsim.RHICfSimDst.root") != -1 && mInputFile.Index("reco") == -1) {
+            LOG_INFO << Form("StRHICfSimConvertor::InitSimRecoMode() -- Find a SimDst file: %s",mInputFile.Data()) << endm;
+
+            mSimDstFile = new TFile(mInputFile.Data(), "READ");
+            mSimDstTree = (TTree*)mSimDstFile -> Get("StRHICfSimDst");
+
+            mSimDst = new StRHICfSimDst();
+            mSimDst -> ReadDstArray(mSimDstTree);
+
+            mInputFile.ReplaceAll("rhicfsim.RHICfSimDst.root", "reco.rhicfsim.RHICfSimDst.root");
+            TString outputFileName = mInputFile;
+            mOutSimDstFile = new TFile(outputFileName.Data(), "RECREATE");
+            mOutSimDstTree = mSimDstTree -> CloneTree(0);
+
+            LOG_INFO << Form("StRHICfSimConvertor::InitSimRecoMode() -- Output File: %s",outputFileName.Data()) << endm;
+        }
+        else{
+            LOG_ERROR << Form("StRHICfSimConvertor::InitSimRecoMode() -- Input file has a different format !!! %s",mInputFile.Data()) << endm;
+        }
+    }
+    if(!mSimDst){
+        LOG_ERROR << Form("StRHICfSimConvertor::InitSimRecoMode() -- Could not read file: %s",mInputFile.Data()) << endm;
+        return kStErr;
+    }
+
+    mRHICfPointMaker = new StRHICfPointMaker();
+    mRHICfPointMaker -> setMCReco();
+
+    mEvent = 0;
 
     return kStOk;
 }
@@ -167,6 +214,7 @@ Int_t StRHICfSimConvertor::ConvertMuDst2SimDst()
     int eventNumber = mMuEvent -> eventNumber();
     mSimEvent -> SetEventNumber(eventNumber);
     mSimEvent -> SetRHICfRunType(mRHICfRunType);
+    if(mGeneratorName != ""){mSimEvent -> SetGeneratorName(mGeneratorName);}
 
     // ======================= Get MuMcTrack ============================
     mMcVtxArray = mMuDst -> mcArray(0);
@@ -428,8 +476,6 @@ Int_t StRHICfSimConvertor::GetGeneratorData()
                             double StartVy = mSimTrk->GetVyStart();
                             double StartVz = mSimTrk->GetVzStart();
 
-                            int crrPID = mSimTrk -> GetPid(); // test
-
                             mGenParticle = (*mGenEvent)[genParentId1];
 
                             // Find the duplicated mother particle in SimTrack
@@ -551,8 +597,123 @@ Int_t StRHICfSimConvertor::GetGePid2PDG(int gepid)
     return mDatabasePDG -> ConvertGeant3ToPdg(gepid);
 }
 
-Int_t StRHICfSimConvertor::ConvertSimDst2MuDst()
+Int_t StRHICfSimConvertor::FillMCData()
 {
+    mSimDstTree -> GetEntry(mEvent); 
+
+    mRHICfColl = new StRHICfCollection();
+    mRHICfColl -> isAllSave();
+
+    mRHICfHit = mRHICfColl -> hitCollection();
+    mRHICfHit -> initDataArray();
+    mSimRHICfHit = mSimDst -> GetSimRHICfHit();
+
+    mSimEvent = mSimDst -> GetSimEvent();
+    mRHICfColl -> setRunType(mSimEvent -> GetRHICfRunType());
+
+    for(int it=0; it<kRHICfNtower; it++){
+        for(int ip=0; ip<kRHICfNplate; ip++){
+            Float_t plateEnergy = mSimRHICfHit -> GetPlatedE(it, ip)/1000.; // !!!! test tmp
+            mRHICfHit -> setPlateEnergy(it, ip, plateEnergy);
+        }
+        for(int il=0; il<kRHICfNlayer; il++){
+            for(int ixy=0; ixy<kRHICfNxy; ixy++){
+                int chSize = (it == 0)? 20 : 40;
+                for(int ich=0; ich<chSize; ich++){
+                    Float_t gsobarEnergy = mSimRHICfHit -> GetGSOBardE(it, il, ixy, ich)/1000.; // !!!! test tmp
+                    mRHICfHit -> setGSOBarEnergy(it, il, ixy, ich, gsobarEnergy);
+                }
+            }
+        }
+    }
+    mRHICfPointMaker -> setMCCollection(mRHICfColl);
+
+    mEvent++;
+    return kStOk;
+}
+
+Int_t StRHICfSimConvertor::RecoSimulation()
+{
+    FillMCData();
+
+    mRHICfPointMaker -> InitRun(18178002); // this run number is for initialization of RHICfDbMaker, it doesn't dependent to reco
+    mRHICfPointMaker -> Make();
+    SaveRecoData();
+
+    return kStOk;
+}
+
+Int_t StRHICfSimConvertor::SaveRecoData()
+{
+    mRHICfHit = mRHICfColl -> hitCollection();
+    mSimRHICfHit = mSimDst -> GetSimRHICfHit();
+
+    // RHICf Hit
+    for(int it=0; it<kRHICfNtower; it++){
+        for(int io=0; io<2; io++){
+            Int_t gsoMaxLayer = mRHICfHit -> getGSOMaxLayer(it, io);
+            mSimRHICfHit -> SetGSOMaxLayer(it, io, gsoMaxLayer);
+        }
+
+        Float_t l20 = mRHICfHit -> getL20(it);
+        Float_t l90 = mRHICfHit -> getL90(it);
+        mSimRHICfHit -> SetL20(it, l20);
+        mSimRHICfHit -> SetL90(it, l90);
+        
+        Int_t multiHitNum = mRHICfHit -> getMultiHitNum(it);
+        mSimRHICfHit -> SetMultiHitNum(it, multiHitNum);
+        
+        for(int il=0; il<kRHICfNlayer; il++){
+            for(int ixy=0; ixy<kRHICfNxy; ixy++){
+
+                Int_t singleHitNum = mRHICfHit -> getSingleHitNum(it, il, ixy);
+                Int_t maxPeakBin = mRHICfHit -> getMaxPeakBin(it, il, ixy);
+                Float_t singleHitPos = mRHICfHit -> getSingleHitPos(it, il, ixy);
+                Float_t singlePeakHeight = mRHICfHit -> getSinglePeakHeight(it, il, ixy);
+                Float_t singleChi2 = mRHICfHit -> getSingleFitChi2(it, il, ixy);
+                Float_t multiChi2 = mRHICfHit -> getMultiFitChi2(it, il, ixy);
+
+                mSimRHICfHit -> SetSingleHitNum(it, il, ixy, singleHitNum);
+                mSimRHICfHit -> SetMaxPeakBin(it, il, ixy, maxPeakBin);
+                mSimRHICfHit -> SetSingleHitPos(it, il, ixy, singleHitPos);
+                mSimRHICfHit -> SetSinglePeakHeight(it, il, ixy, singlePeakHeight);
+                mSimRHICfHit -> SetSingleFitChi2(it, il, ixy, singleChi2);
+                mSimRHICfHit -> SetMultiFitChi2(it, il, ixy, multiChi2);
+
+                for(int io=0; io<2; io++){
+                Float_t multiHitPos = mRHICfHit -> getMultiHitPos(it, il, ixy, io);
+                Float_t multiPeakRaw = mRHICfHit -> getMultiPeakRaw(it, il, ixy, io);
+                Float_t multiPeakHeight = mRHICfHit -> getMultiPeakHeight(it, il, ixy, io);
+                Float_t multiEnergySum = mRHICfHit -> getMultiEnergySum(it, il, ixy, io);
+                    
+                mSimRHICfHit -> SetMultiHitPos(it, il, ixy, io, multiHitPos);
+                mSimRHICfHit -> SetMultiPeakRaw(it, il, ixy, io, multiPeakRaw);
+                mSimRHICfHit -> SetMultiPeakHeight(it, il, ixy, io, multiPeakHeight);
+                mSimRHICfHit -> SetMultiEnergySum(it, il, ixy, io, multiEnergySum);
+                }
+            }
+        }
+    }
+
+    // RHICf Point
+    for(unsigned int i=0; i<mRHICfColl->numberOfPoints(); i++){
+        Int_t towerIdx = mRHICfColl -> pointCollection()[i] -> getTowerIdx();
+        Int_t pid = mRHICfColl -> pointCollection()[i] -> getPID();
+        Float_t posX = mRHICfColl -> pointCollection()[i] -> getPointPos(0);
+        Float_t posY = mRHICfColl -> pointCollection()[i] -> getPointPos(1);
+        Float_t photonE = mRHICfColl -> pointCollection()[i] -> getPointEnergy(0);
+        Float_t hadronE = mRHICfColl -> pointCollection()[i] -> getPointEnergy(1);
+        Float_t towerEAll = mRHICfColl -> pointCollection()[i] -> getTowerSumEnergy(0);
+        Float_t towerEPart = mRHICfColl -> pointCollection()[i] -> getTowerSumEnergy(1);
+
+        StRHICfSimRHICfPoint* simRHICfPoint = mSimDst -> GetSimRHICfPoint(i);
+        simRHICfPoint -> SetTowerIdx(towerIdx);
+        simRHICfPoint -> SetPID(pid);
+        simRHICfPoint -> SetPointPos(posX, posY);
+        simRHICfPoint -> SetPointEnergy(photonE, hadronE);
+        simRHICfPoint -> SetTowerSumEnergy(towerEAll, towerEPart);
+    }
+  
     return kStOk;
 }
 
@@ -571,8 +732,8 @@ void StRHICfSimConvertor::InitRHICfGeometry()
         LOG_ERROR << "StRHICfSimConvertor::InitRHICfGeometry() warning!!! RHICf run type is not setted!!!" << endm;
     }
 
-    if(mRHICfRunType == rTStype){detBeamCenter = 0.;} // TS
     if(mRHICfRunType == rTLtype){detBeamCenter = -4.74;} // TL
+    if(mRHICfRunType == rTStype){detBeamCenter = 0.;} // TS
     if(mRHICfRunType == rTOPtype){detBeamCenter = 2.16;} // TOP
 
     mRHICfTowerBoundary[0][0][0] = sqrt(2)*((tsDetSize - detBoundCut*2.)/2.); 
