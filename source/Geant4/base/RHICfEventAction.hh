@@ -32,8 +32,6 @@
 #include "RHICfSimUtil.hh"
 #include "RHICfSimOptions.hh"
 
-#include "RHICfReconstruction.hh"
-
 class G4Event;
 
 class RHICfEventAction: public G4UserEventAction
@@ -78,9 +76,6 @@ class RHICfEventAction: public G4UserEventAction
         StRHICfSimTrack* fSimTrack;
         StRHICfSimRHICfHit* fSimRHICfHit;
         StRHICfSimZDC* fSimZDC;
-
-        // RHICf Reconstruction
-        RHICfReconstruction* fRHICfReco;
 
 };
 

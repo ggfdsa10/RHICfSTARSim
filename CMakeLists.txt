@@ -40,7 +40,7 @@ message(STATUS "RHICfSTARSim Path: ${RHICFSTARSIMDIR}")
 set(COMPILE_SOURCE_DIRECTORY_LIST
   ${RHICFSTARSIMDIR}/source/Geant4/base
   ${RHICFSTARSIMDIR}/source/Geant4/sensitiveDetectors
-  ${RHICFSTARSIMDIR}/source/Reconstruction
+  #${RHICFSTARSIMDIR}/source/Reconstruction
   ${RHICFSTARSIMDIR}/source/Util
 
   CACHE INTERNAL ""

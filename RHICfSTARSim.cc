@@ -8,7 +8,6 @@
 #include "RHICfRunAction.hh"
 #include "RHICfEventAction.hh"
 #include "RHICfTrackingAction.hh"
-#include "RHICfReconstruction.hh"
 
 #include "RHICfSimPar.hh"
 #include "RHICfSimUtil.hh"
