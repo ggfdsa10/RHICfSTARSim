@@ -88,8 +88,8 @@ void RHICfSimOptions::SetInputOption(int num,char** par)
                     StRHICfSimEvent* simEvent = simDst -> GetSimEvent();
                     int runtype = simEvent -> GetRHICfRunType();
                     TString runtypeName = "";
-                    if(runtype == rTStype){runtypeName = "TS";}
                     if(runtype == rTLtype){runtypeName = "TL";}
+                    if(runtype == rTStype){runtypeName = "TS";}
                     if(runtype == rTOPtype){runtypeName = "TOP";}
                     AddOpt("runtype", runtypeName);
 
@@ -107,7 +107,7 @@ void RHICfSimOptions::SetInputOption(int num,char** par)
                     cout << "RHICfSimOptions::SetInputOption()  -- OUTPUT: " << outputFile << endl;
 
                     if(CheckOpt("runtype")){
-                        cout << "RHICfSimOptions::SetInputOption() -- " << requiredParName << " was found. " << GetOptString("RUNTYPE") << endl; 
+                        cout << "RHICfSimOptions::SetInputOption() -- " << requiredParName << " has found. " << GetOptString("RUNTYPE") << endl; 
                         delete simEvent;
                         delete simDst;
                         delete tree;
@@ -399,7 +399,7 @@ TString RHICfSimOptions::GetDirPath(TString type)
 
 TString RHICfSimOptions::GetExistROOTFile(TString input)
 {
-    if(input.Index("RHICfSimDst.root") != -1){return input;}
+    if(input.Index(".RHICfSimDst.root") != -1){return input;}
     TString findFileName = input + ".RHICfSimDst.root";
 
     TString currentPath = gSystem -> pwd();
