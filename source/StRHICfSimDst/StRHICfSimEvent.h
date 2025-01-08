@@ -16,7 +16,7 @@ class StRHICfSimEvent : public TObject
         void SetEventNumber(int idx);
         void SetProcessId(int id);
         void SetRHICfRunType(int type);
-        void SetGeneratorName(TString name);
+        void SetGeneratorIdx(int idx);
 
         // Event generator information
         void SetXParton1(double val);
@@ -43,7 +43,7 @@ class StRHICfSimEvent : public TObject
         Int_t GetEventNumber();
         Int_t GetProcessId();
         Int_t GetRHICfRunType();
-        TString GetGeneratorName();
+        Int_t GetGeneratorIdx();
 
         Double_t GetXParton1();
         Double_t GetXParton2();
@@ -70,7 +70,7 @@ class StRHICfSimEvent : public TObject
         Int_t mEventNumber;
         Int_t mProcessId;
         Int_t mRHICfRunType;
-        TString mGeneratorName;
+        Int_t mGeneratorIdx;
 
         Double_t mXParton1; // x of blue beam parton
         Double_t mXParton2; // x of yellow beam parton

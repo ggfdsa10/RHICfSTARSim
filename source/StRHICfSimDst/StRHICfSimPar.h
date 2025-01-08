@@ -1,6 +1,17 @@
 #ifndef StRHICfSimPar_HH
 #define StRHICfSimPar_HH
 
+#include "TString.h"
+
+enum GeneratorID{
+    rPythia8 = 0,
+    rHerwig7 = 1,
+    rEPOSLHC = 2,
+    rQGSJETII04 = 3,
+    rQGSJETIII = 4,
+    rGeneratorNum = 5
+};
+
 enum SimProcessPar{
     rSingleDiff = 1,
     rDoubleDiff = 2,
@@ -57,5 +68,19 @@ enum SimIOMode{
     rWrite = 1,
     rRead = 2
 };
+
+class StRHICfSimPar 
+{
+    public:
+        inline static TString GetGeneratorName(int generatorId){
+            if(generatorId == rPythia8){return "Pythia8";}
+            if(generatorId == rHerwig7){return "Herwig7";}
+            if(generatorId == rEPOSLHC){return "EPOSLHC";}
+            if(generatorId == rQGSJETII04){return "QGSJETII04";}
+            if(generatorId == rQGSJETIII){return "QGSJETIII";}
+            return "Non";
+        }
+};
+
 
 #endif

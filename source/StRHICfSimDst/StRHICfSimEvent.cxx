@@ -16,7 +16,7 @@ void StRHICfSimEvent::Clear(Option_t *option)
     mEventNumber = -999;
     mProcessId = -999;
     mRHICfRunType = -999;
-    mGeneratorName = "";
+    mGeneratorIdx = -999;
 
     mXParton1 = -999.; 
     mXParton2 = -999.; 
@@ -43,7 +43,7 @@ void StRHICfSimEvent::Clear(Option_t *option)
 void StRHICfSimEvent::SetEventNumber(int idx){mEventNumber = idx;}
 void StRHICfSimEvent::SetProcessId(int id){mProcessId = id;}
 void StRHICfSimEvent::SetRHICfRunType(int type){mRHICfRunType = type;}
-void StRHICfSimEvent::SetGeneratorName(TString name){mGeneratorName = name;}
+void StRHICfSimEvent::SetGeneratorIdx(int idx){mGeneratorIdx = idx;}
 
 void StRHICfSimEvent::SetXParton1(double val){mXParton1 = val;}
 void StRHICfSimEvent::SetXParton2(double val){mXParton2 = val;}
@@ -69,7 +69,7 @@ void StRHICfSimEvent::SetPrimaryTrkNum(int num){mPrimaryTrkNum = num;}
 Int_t StRHICfSimEvent::GetEventNumber(){return mEventNumber;}
 Int_t StRHICfSimEvent::GetProcessId(){return mProcessId;}
 Int_t StRHICfSimEvent::GetRHICfRunType(){return mRHICfRunType;}
-TString StRHICfSimEvent::GetGeneratorName(){return mGeneratorName;}
+Int_t StRHICfSimEvent::GetGeneratorIdx(){return mGeneratorIdx;}
 
 Double_t StRHICfSimEvent::GetXParton1(){return mXParton1;}
 Double_t StRHICfSimEvent::GetXParton2(){return mXParton2;}
