@@ -31,6 +31,7 @@ int main(int argc,char** argv)
         G4cout << "No input file!" << G4endl;
         return 1;
     }
+    cout << "====================== RHICf+STAR simulation ======================" << endl;
 
     // ==================================== RHICfSimUtil  ===============================================
     RHICfSimUtil* simUtil = RHICfSimUtil::GetRHICfSimUtil(argc, argv);
