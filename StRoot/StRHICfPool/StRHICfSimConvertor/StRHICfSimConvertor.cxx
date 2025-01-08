@@ -58,16 +58,27 @@ Int_t StRHICfSimConvertor::Make()
 {
     LOG_INFO << "StRHICfSimConvertor::Make()" << endm;
     if(mConvertFlag == kMuDst2SimDst){ConvertMuDst2SimDst();}
-    if(mConvertFlag == kSimRecoMode){RecoSimulation();}
+    if(mConvertFlag == kSimRecoMode){
+        if(mSimDstTree->GetEntries() <= mEvent){return kStEOF;}
+        RecoSimulation();
+    }
 
     return kStOk;
 }
 
 Int_t StRHICfSimConvertor::Finish()
 {
-    mSimDstFile -> cd();
-    mSimDstTree -> Write();
-    mSimDstFile -> Close();
+    if(mConvertFlag == kMuDst2SimDst){
+        mSimDstFile -> cd();
+        mSimDstTree -> Write();
+        mSimDstFile -> Close();
+    }
+
+    if(mConvertFlag == kSimRecoMode){
+        mOutSimDstFile -> cd();
+        mOutSimDstTree -> Write();
+        mOutSimDstFile -> Close();
+    }
 
     return kStOk;
 }
@@ -86,7 +97,7 @@ Int_t StRHICfSimConvertor::InitMuDst2SimDst()
     TString generatorFile = "";
     if(mInputFile.Length() == 0){
         LOG_ERROR << "Input file is not a existing ... " << endm;
-        return kStErr;
+        return kStFatal;
     }
     else{
         int fileNum = 0;
@@ -107,7 +118,7 @@ Int_t StRHICfSimConvertor::InitMuDst2SimDst()
             }
             if(fileNum != 1){
                 LOG_ERROR << "StRHICfSimConvertor::InitMuDst2SimDst() -- Input file must be one MuDst file" << endm;
-                return kStErr;
+                return kStFatal;
             }
         }
         if(muDstFile == ""){muDstFile = mInputFile;}
@@ -122,15 +133,19 @@ Int_t StRHICfSimConvertor::InitMuDst2SimDst()
             int valid = mChain -> Add(generatorFile);
             if(valid == 0){
                 LOG_ERROR << "StRHICfSimConvertor::InitMuDst2SimDst() -- There is no Generator ROOT file !!! " << endm;
-                return kStErr;
+                return kStFatal;
             }
             LOG_INFO << Form("StRHICfSimConvertor::InitMuDst2SimDst() -- Find a Event generator file: %s",generatorFile.Data()) << endm;
 
             if(mOutputFile.Index("StarSim_Pythia8") != -1){mGeneratorName = "Pythia8";}
-            if(mOutputFile.Index("StarSim_Herwig7") != -1){mGeneratorName = "Herwig7";}
-            if(mOutputFile.Index("StarSim_EPOSLHC") != -1){mGeneratorName = "EPOSLHC";}
-            if(mOutputFile.Index("StarSim_QGSJETII04") != -1){mGeneratorName = "QGSJETII04";}
-            if(mOutputFile.Index("StarSim_QGSJETIII") != -1){mGeneratorName = "QGSJETIII";}
+            else if(mOutputFile.Index("StarSim_Herwig7") != -1){mGeneratorName = "Herwig7";}
+            else if(mOutputFile.Index("StarSim_EPOSLHC") != -1){mGeneratorName = "EPOSLHC";}
+            else if(mOutputFile.Index("StarSim_QGSJETII04") != -1){mGeneratorName = "QGSJETII04";}
+            else if(mOutputFile.Index("StarSim_QGSJETIII") != -1){mGeneratorName = "QGSJETIII";}
+            else{
+                LOG_ERROR << "StRHICfSimConvertor::InitMuDst2SimDst() -- Can not find a event generator type !!!" << endm;
+                return kStFatal;
+            }
         }
     }
 
@@ -160,7 +175,7 @@ Int_t StRHICfSimConvertor::InitSimRecoMode()
 {
     if(mInputFile.Length() == 0){
         LOG_ERROR << "Input file is not a existing ... " << endm;
-        return kStErr;
+        return kStFatal;
     }
     else{
         if(mInputFile.Index("rhicfsim.RHICfSimDst.root") != -1 && mInputFile.Index("reco") == -1) {
@@ -181,11 +196,12 @@ Int_t StRHICfSimConvertor::InitSimRecoMode()
         }
         else{
             LOG_ERROR << Form("StRHICfSimConvertor::InitSimRecoMode() -- Input file has a different format !!! %s",mInputFile.Data()) << endm;
+            return kStFatal;
         }
     }
     if(!mSimDst){
         LOG_ERROR << Form("StRHICfSimConvertor::InitSimRecoMode() -- Could not read file: %s",mInputFile.Data()) << endm;
-        return kStErr;
+        return kStFatal;
     }
 
     mRHICfPointMaker = new StRHICfPointMaker();
@@ -204,10 +220,10 @@ Int_t StRHICfSimConvertor::ConvertMuDst2SimDst()
 
     // =================== DST Set up ======================
     mMuDst = (StMuDst*) GetInputDS("MuDst"); // from DST
-    if(!mMuDst) {LOG_ERROR << "no StMuDst" << endm;  return kStErr;};
+    if(!mMuDst) {LOG_ERROR << "no StMuDst" << endm;  return kStFatal;};
 
     mMuEvent = mMuDst->event(); // from muDST
-    if(!mMuEvent) {LOG_ERROR << "no StMuEvent" << endm;  return kStErr;};
+    if(!mMuEvent) {LOG_ERROR << "no StMuEvent" << endm;  return kStFatal;};
 
     // Get the event info
     mSimEvent = mSimDst -> GetSimEvent();
@@ -599,6 +615,7 @@ Int_t StRHICfSimConvertor::GetGePid2PDG(int gepid)
 
 Int_t StRHICfSimConvertor::FillMCData()
 {
+    LOG_INFO << "StRHICfSimConvertor::FillMCData() -- Start the RHICf simulation reconstruction, event: " << mEvent << " / " << mSimDstTree->GetEntries()-1 << endl;
     mSimDstTree -> GetEntry(mEvent); 
 
     mRHICfColl = new StRHICfCollection();
@@ -613,14 +630,14 @@ Int_t StRHICfSimConvertor::FillMCData()
 
     for(int it=0; it<kRHICfNtower; it++){
         for(int ip=0; ip<kRHICfNplate; ip++){
-            Float_t plateEnergy = mSimRHICfHit -> GetPlatedE(it, ip)/1000.; // !!!! test tmp
+            Float_t plateEnergy = mSimRHICfHit -> GetPlatedE(it, ip);
             mRHICfHit -> setPlateEnergy(it, ip, plateEnergy);
         }
         for(int il=0; il<kRHICfNlayer; il++){
             for(int ixy=0; ixy<kRHICfNxy; ixy++){
                 int chSize = (it == 0)? 20 : 40;
                 for(int ich=0; ich<chSize; ich++){
-                    Float_t gsobarEnergy = mSimRHICfHit -> GetGSOBardE(it, il, ixy, ich)/1000.; // !!!! test tmp
+                    Float_t gsobarEnergy = mSimRHICfHit -> GetGSOBardE(it, il, ixy, ich);
                     mRHICfHit -> setGSOBarEnergy(it, il, ixy, ich, gsobarEnergy);
                 }
             }
@@ -713,6 +730,8 @@ Int_t StRHICfSimConvertor::SaveRecoData()
         simRHICfPoint -> SetPointEnergy(photonE, hadronE);
         simRHICfPoint -> SetTowerSumEnergy(towerEAll, towerEPart);
     }
+
+    mOutSimDstTree -> Fill();
   
     return kStOk;
 }
@@ -728,7 +747,7 @@ void StRHICfSimConvertor::InitRHICfGeometry()
     double distTStoTL = 4.74; // [cm]
     double detBeamCenter = 0.; // [cm]
 
-    if(mRHICfRunType < rTStype || mRHICfRunType > rTOPtype){
+    if(mRHICfRunType < rTLtype || mRHICfRunType > rTOPtype){
         LOG_ERROR << "StRHICfSimConvertor::InitRHICfGeometry() warning!!! RHICf run type is not setted!!!" << endm;
     }
 
