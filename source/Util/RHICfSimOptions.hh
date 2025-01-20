@@ -21,6 +21,7 @@ class RHICfSimOptions
 
         void Init();
         void SetInputOption(int num, char** par);
+        void SetParm(int num, char** par);
 
         void AddOpt(TString name, int value);
         void AddOpt(TString name, double value);
@@ -47,11 +48,11 @@ class RHICfSimOptions
         int mInputParNum;
         char** mInputPar;
 
-        vector<pair<TString, TString>> mRequiredPar;
-        vector<pair<TString, int>> mOptInt;
-        vector<pair<TString, double>> mOptDouble;
-        vector<pair<TString, bool>> mOptBool;
-        vector<pair<TString, TString>> mOptString;
+        vector<pair<TString, TString> > mRequiredPar;
+        vector<pair<TString, int> > mOptInt;
+        vector<pair<TString, double> > mOptDouble;
+        vector<pair<TString, bool> > mOptBool;
+        vector<pair<TString, TString> > mOptString;
 };
 
 #endif

@@ -123,6 +123,14 @@ void RHICfSimOptions::SetInputOption(int num,char** par)
 
     PrintOpt();
 }
+void RHICfSimOptions::SetParm(int num, char** par)
+{
+    mInputParNum = num;
+    mInputPar = par;
+
+    ParsingParm();
+    PrintOpt();
+}
 
 void RHICfSimOptions::AddOpt(TString name, int value)
 {
