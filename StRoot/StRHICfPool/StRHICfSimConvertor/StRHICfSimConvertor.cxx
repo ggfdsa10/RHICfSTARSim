@@ -25,6 +25,7 @@
 #include "StarGenerator/EVENT/StarGenParticle.h"
 
 // StRHICfSimDst 
+#include "StRHICfPool/StRHICfSimDst/StRHICfSimPar.h"
 #include "StRHICfPool/StRHICfSimDst/StRHICfSimDst.h"
 #include "StRHICfPool/StRHICfSimDst/StRHICfSimEvent.h"
 #include "StRHICfPool/StRHICfSimDst/StRHICfSimTrack.h"
@@ -137,12 +138,15 @@ Int_t StRHICfSimConvertor::InitMuDst2SimDst()
             }
             LOG_INFO << Form("StRHICfSimConvertor::InitMuDst2SimDst() -- Find a Event generator file: %s",generatorFile.Data()) << endm;
 
-            if(mOutputFile.Index("StarSim_Pythia8") != -1){mGeneratorName = "Pythia8";}
-            else if(mOutputFile.Index("StarSim_Herwig7") != -1){mGeneratorName = "Herwig7";}
-            else if(mOutputFile.Index("StarSim_EPOSLHC") != -1){mGeneratorName = "EPOSLHC";}
-            else if(mOutputFile.Index("StarSim_QGSJETII04") != -1){mGeneratorName = "QGSJETII04";}
-            else if(mOutputFile.Index("StarSim_QGSJETIII") != -1){mGeneratorName = "QGSJETIII";}
-            else{
+            for(int i=0; i<=rGeneratorNum; i++){
+                TString generatorName = StRHICfSimPar::GetGeneratorName(i);
+                if(mOutputFile.Index(generatorName) != -1){
+                    LOG_INFO << Form("StRHICfSimConvertor::InitMuDst2SimDst() -- Find a Event generator name: %s",generatorName.Data()) << endm;
+                    mGeneratorIdx = i;
+                    break;
+                }
+            }
+            if(mGeneratorIdx >= rGeneratorNum){
                 LOG_ERROR << "StRHICfSimConvertor::InitMuDst2SimDst() -- Can not find a event generator type !!!" << endm;
                 return kStFatal;
             }
@@ -157,10 +161,13 @@ Int_t StRHICfSimConvertor::InitMuDst2SimDst()
     mSimDst = new StRHICfSimDst();
     mSimDst -> CreateDstArray(mSimDstTree);
 
-    mGenPPEvent = new StarGenPPEvent("Pythia8");
+    TString generatorType = "StRHICfSimGenerator";
+    if(mOutputFile.Index("Pythia8") != -1){generatorType = "Pythia8";}
+
+    mGenPPEvent = new StarGenPPEvent(generatorType);
     mGenEvent = new StarGenEvent("primaryEvent");
 
-    mChain -> SetBranchAddress("Pythia8", &mGenPPEvent);
+    mChain -> SetBranchAddress(generatorType, &mGenPPEvent);
     mChain -> SetBranchAddress("primaryEvent", &mGenEvent);
     mTmpChainEvent = 0;
 
@@ -228,9 +235,10 @@ Int_t StRHICfSimConvertor::ConvertMuDst2SimDst()
     // Get the event info
     mSimEvent = mSimDst -> GetSimEvent();
     int eventNumber = mMuEvent -> eventNumber();
+
     mSimEvent -> SetEventNumber(eventNumber);
     mSimEvent -> SetRHICfRunType(mRHICfRunType);
-    if(mGeneratorName != ""){mSimEvent -> SetGeneratorName(mGeneratorName);}
+    if(mGeneratorIdx < rGeneratorNum){mSimEvent -> SetGeneratorIdx(mGeneratorIdx);}
 
     // ======================= Get MuMcTrack ============================
     mMcVtxArray = mMuDst -> mcArray(0);
@@ -295,9 +303,9 @@ Int_t StRHICfSimConvertor::ConvertMuDst2SimDst()
         if(pid == 22 || pid == 2112){
             int hit = GetRHICfGeoHit(posStart[0], posStart[1], posStart[2], mom[0], mom[1], mom[2], energy);
             if(hit != -1){
-                cout <<"RHICf Hitted particle pid: " << pid << endl;
                 if(pid == 22){mRHICfGammaIdx.push_back(mSimDst->GetSimTrackNum()-1);} // gamma
-                if(pid == 2112){mRHICfNeuIdx.push_back(mSimDst->GetSimTrackNum()-1);} // neutron
+                if(pid == 2112){
+                    mRHICfNeuIdx.push_back(mSimDst->GetSimTrackNum()-1);} // neutron
             }
         }
     }
@@ -442,7 +450,7 @@ Int_t StRHICfSimConvertor::GetGeneratorData()
                 int genEnergyInt = int(mGenParticle -> GetEnergy()*10000);
 
                 for(int r=0; r<totalRHICfParNum; r++){
-                    int simTrkIdx = (r < RHICfGammaNum)? mRHICfGammaIdx[r] : mRHICfNeuIdx[r];
+                    int simTrkIdx = (r < RHICfGammaNum)? mRHICfGammaIdx[r] : mRHICfNeuIdx[r-RHICfGammaNum];
                     mSimTrk = mSimDst -> GetSimTrack(simTrkIdx);
 
                     double px = mSimTrk -> GetPx();
@@ -513,6 +521,7 @@ Int_t StRHICfSimConvertor::GetGeneratorData()
                                     break;
                                 }
                             }
+
                             mSimTrk = mSimDst -> GetSimTrack(simTrkIdx);
                             if(duplicatedMotherIdx > 0){
                                 mSimTrk -> SetParentId(duplicatedMotherIdx); 
@@ -613,6 +622,17 @@ Int_t StRHICfSimConvertor::GetGePid2PDG(int gepid)
     return mDatabasePDG -> ConvertGeant3ToPdg(gepid);
 }
 
+Int_t StRHICfSimConvertor::RecoSimulation()
+{
+    FillMCData();
+
+    mRHICfPointMaker -> InitRun(18178002); // this run number is for initialization of RHICfDbMaker, it doesn't dependent to reco
+    mRHICfPointMaker -> Make();
+    SaveRecoData();
+
+    return kStOk;
+}
+
 Int_t StRHICfSimConvertor::FillMCData()
 {
     LOG_INFO << "StRHICfSimConvertor::FillMCData() -- Start the RHICf simulation reconstruction, event: " << mEvent << " / " << mSimDstTree->GetEntries()-1 << endl;
@@ -646,17 +666,6 @@ Int_t StRHICfSimConvertor::FillMCData()
     mRHICfPointMaker -> setMCCollection(mRHICfColl);
 
     mEvent++;
-    return kStOk;
-}
-
-Int_t StRHICfSimConvertor::RecoSimulation()
-{
-    FillMCData();
-
-    mRHICfPointMaker -> InitRun(18178002); // this run number is for initialization of RHICfDbMaker, it doesn't dependent to reco
-    mRHICfPointMaker -> Make();
-    SaveRecoData();
-
     return kStOk;
 }
 
@@ -731,6 +740,8 @@ Int_t StRHICfSimConvertor::SaveRecoData()
         simRHICfPoint -> SetTowerSumEnergy(towerEAll, towerEPart);
     }
 
+    LOG_INFO << " StRHICfSimConvertor::SaveRecoData() -- RHICfPoint number: " << mRHICfColl->numberOfPoints() << endm;
+
     mOutSimDstTree -> Fill();
   
     return kStOk;
@@ -743,7 +754,7 @@ void StRHICfSimConvertor::InitRHICfGeometry()
 
     double tsDetSize = 2.; // [cm]
     double tlDetSize = 4.; // [cm]
-    double detBoundCut = 0.2; // [cm]
+    double detBoundCut = 0.0; // [cm]
     double distTStoTL = 4.74; // [cm]
     double detBeamCenter = 0.; // [cm]
 

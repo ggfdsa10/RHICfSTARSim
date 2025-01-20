@@ -77,15 +77,15 @@ class StRHICfSimConvertor : public StMaker
 		Int_t GetRHICfGeoHit(double posX, double posY, double posZ, double px, double py, double pz, double e);
 
 		Int_t InitSimRecoMode();
-		Int_t FillMCData();
 		Int_t RecoSimulation();
+		Int_t FillMCData();
 		Int_t SaveRecoData();
 
 		Int_t mConvertFlag;
 		TString mInputFile;
 		TString mOutputFile;
 		Int_t mRHICfRunType;
-		TString mGeneratorName;
+		Int_t mGeneratorIdx;
 
 		TH2Poly* mRHICfPoly;
 		TDatabasePDG* mDatabasePDG;
