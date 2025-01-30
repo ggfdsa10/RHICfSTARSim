@@ -367,8 +367,10 @@ Int_t StRHICfSimConvertor::ConvertMuDst2SimDst()
 Int_t StRHICfSimConvertor::GetGeneratorData()
 {
     int simDstEvent = mSimEvent -> GetEventNumber();
+
     for(int event=mTmpChainEvent; event<mChain->GetEntriesFast(); event++){
         mChain -> GetEntry(event);
+
         if(mGenEvent -> GetFilterResult() != 1){continue;}
         if(simDstEvent == mGenEvent->GetEventNumber()){
             mTmpChainEvent = event;
@@ -447,7 +449,7 @@ Int_t StRHICfSimConvertor::GetGeneratorData()
                 if(pid != 22 && pid != 2112){continue;}
 
                 int genPtInt = int(mGenParticle -> pt()*10000);
-                int genEnergyInt = int(mGenParticle -> GetEnergy()*10000);
+                int genEnergyInt = int(mGenParticle -> GetEnergy()*100);
 
                 for(int r=0; r<totalRHICfParNum; r++){
                     int simTrkIdx = (r < RHICfGammaNum)? mRHICfGammaIdx[r] : mRHICfNeuIdx[r-RHICfGammaNum];
@@ -456,7 +458,7 @@ Int_t StRHICfSimConvertor::GetGeneratorData()
                     double px = mSimTrk -> GetPx();
                     double py = mSimTrk -> GetPy();
                     int simTrkPtInt = int(sqrt(px*px + py*py)*10000);
-                    int simTrkEnergyInt = int(mSimTrk->GetE()*10000);
+                    int simTrkEnergyInt = int(mSimTrk->GetE()*100);
                     int simTrkPid = mSimTrk -> GetPid();
 
                     // Getting the same RHICf particle 
@@ -569,6 +571,7 @@ Int_t StRHICfSimConvertor::GetGeneratorData()
                     }
                 }
             }
+            break;
         }
     }
     return kStOk;
