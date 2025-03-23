@@ -67,9 +67,5 @@ enum RPSPar{
     kRPSPointNum = 2
 };
 
-class StRHICfParameters 
-{
-};
-
 
 #endif
