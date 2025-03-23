@@ -14,29 +14,29 @@ StRHICfEventDst::~StRHICfEventDst()
 void StRHICfEventDst::Clear(Option_t* option)
 {
     if(mEvent){mEvent -> Clear();}
-    if(mTPCTrack){mTPCTrack -> Clear("C");}
+    if(mTPCTrack && !mOffTPCTrack){mTPCTrack -> Clear("C");}
     if(mBTof){mBTof -> Clear("C");}
     if(mBBC){mBBC -> Clear();}
     if(mVPD){mVPD -> Clear();}
     if(mZDC){mZDC -> Clear();}
     if(mRHICfParticle){mRHICfParticle -> Clear("C");}
     if(mRHICfDetPoint){mRHICfDetPoint -> Clear("C");}
-    if(mFMS){mFMS -> Clear("C");}
-    if(mRPS){mRPS -> Clear("C");}
+    if(mFMS && !mOffFMS){mFMS -> Clear("C");}
+    if(mRPS && !mOffRPS){mRPS -> Clear("C");}
 }
 
 Int_t StRHICfEventDst::Init()
 {
-    if(mEvent){mEvent = new StRHICfEvent();}
-    if(mTPCTrack && !mOffTPCTrack){mTPCTrack = new TClonesArray("StRHICfTPCTrack");}
-    if(mBTof){mBTof = new TClonesArray("StRHICfBTof");}
-    if(mBBC){mBBC = new StRHICfBBC();}
-    if(mVPD){mVPD = new StRHICfVPD();}
-    if(mZDC){mZDC = new StRHICfZDC();}
-    if(mRHICfParticle){mRHICfParticle = new TClonesArray("StRHICfParticle");}
-    if(mRHICfDetPoint){mRHICfDetPoint = new TClonesArray("StRHICfDetPoint");}
-    if(mFMS && !mOffFMS){mFMS = new TClonesArray("StRHICfFMS");}
-    if(mRPS && !mOffRPS){mRPS = new TClonesArray("StRHICfRPS");}
+    if(!mEvent){mEvent = new StRHICfEvent();}
+    if(!mTPCTrack && !mOffTPCTrack){mTPCTrack = new TClonesArray("StRHICfTPCTrack");}
+    if(!mBTof){mBTof = new TClonesArray("StRHICfBTof");}
+    if(!mBBC){mBBC = new StRHICfBBC();}
+    if(!mVPD){mVPD = new StRHICfVPD();}
+    if(!mZDC){mZDC = new StRHICfZDC();}
+    if(!mRHICfParticle){mRHICfParticle = new TClonesArray("StRHICfParticle");}
+    if(!mRHICfDetPoint){mRHICfDetPoint = new TClonesArray("StRHICfDetPoint");}
+    if(!mFMS && !mOffFMS){mFMS = new TClonesArray("StRHICfFMS");}
+    if(!mRPS && !mOffRPS){mRPS = new TClonesArray("StRHICfRPS");}
 
     return 1;
 }

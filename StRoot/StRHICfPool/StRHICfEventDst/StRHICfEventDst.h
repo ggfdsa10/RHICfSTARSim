@@ -56,16 +56,16 @@ class StRHICfEventDst : public TObject
         Int_t GetRPSNum();
     
     private:
-        StRHICfEvent* mEvent;
-        TClonesArray* mTPCTrack;
-        TClonesArray* mBTof;
-        StRHICfBBC* mBBC;
-        StRHICfVPD* mVPD;
-        StRHICfZDC* mZDC;
-        TClonesArray* mRHICfParticle;
-        TClonesArray* mRHICfDetPoint;
-        TClonesArray* mFMS;
-        TClonesArray* mRPS;
+        StRHICfEvent* mEvent = nullptr;
+        TClonesArray* mTPCTrack = nullptr;
+        TClonesArray* mBTof = nullptr;
+        StRHICfBBC* mBBC = nullptr;
+        StRHICfVPD* mVPD = nullptr;
+        StRHICfZDC* mZDC = nullptr;
+        TClonesArray* mRHICfParticle = nullptr;
+        TClonesArray* mRHICfDetPoint = nullptr;
+        TClonesArray* mFMS = nullptr;
+        TClonesArray* mRPS = nullptr;
 
         bool mOffTPCTrack;
         bool mOffFMS;
