@@ -123,15 +123,4 @@ cd build
 ## Producing the StRHICfSimDst file (optional)
 StRHICfSimDst format file can be produced using only StRHICfSimConvertor with STAR Library
 
-You need copy **StRoot/StRHICfSimConvertor** and **source/StRHICfSimDst** to **StRoot/StRHICfPool** directory on your STAR server directory 
-
-(or on the STAR library environment)
-
-* Correct path
-  
-  `StRoot/StRHICfPool/StRHICfSimConvertor`
-  
-  `StRoot/StRHICfPool/StRHICfSimDst`
-
-And make sure the compile as follow the STAR library
-
+See the StRHICfPool: https://github.com/ggfdsa10/RHICfSTARLibrary
