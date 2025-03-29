@@ -83,10 +83,9 @@ include_directories(
 add_definitions(${ROOT_CXX_FLAGS})
 
 foreach(_name ${DIR_NAME_LIST})
-  ROOT_GENERATE_DICTIONARY(${${_name}_G_NAME}
-    ${${_name}_HEADER_FILES}
-    LINKDEF ${${_name}_LINKDEF_FILE}
-  )
+  ROOT_GENERATE_DICTIONARY(${${_name}_G_NAME} 
+    ${${_name}_HEADER_FILES} 
+    LINKDEF ${${_name}_LINKDEF_FILE})
 endforeach(_name)
 
 foreach(_name ${SOURCE_NAME_LIST})
