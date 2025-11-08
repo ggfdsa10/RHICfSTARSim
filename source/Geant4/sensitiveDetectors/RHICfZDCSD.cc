@@ -41,8 +41,6 @@ void RHICfZDCSD::Initialize(G4HCofThisEvent* HCTE)
   nphoton2.resize(nzdc);
   edep.clear();
   edep.resize(nzdc);
-  primaryTrackId.clear();
-  primaryTrackId.resize(nzdc);
 }
 
 //////////
@@ -112,10 +110,6 @@ G4bool RHICfZDCSD::ProcessHits(G4Step* astep, G4TouchableHistory*)
   /// Accumulate energy deposit in each scintillator
   edep[izdc]+=astep->GetTotalEnergyDeposit();
 
-  if(track->GetParentID() == 0){
-    int trackId = track -> GetTrackID();
-    primaryTrackId[izdc].push_back(trackId);
-  }
 
   return true;
 }
@@ -128,7 +122,7 @@ void RHICfZDCSD::EndOfEvent(G4HCofThisEvent* )
   for(int izdc=0; izdc<nzdc; izdc++) {
     nphoton[izdc]=(int)nphoton2[izdc];
     
-    RHICfZDCHit* ahit=new RHICfZDCHit(izdc, nphoton[izdc], edep[izdc], primaryTrackId[izdc]);
+    RHICfZDCHit* ahit=new RHICfZDCHit(izdc, nphoton[izdc], edep[izdc]);
     hitsColl->insert(ahit);
   }
 }

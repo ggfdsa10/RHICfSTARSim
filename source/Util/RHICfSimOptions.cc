@@ -42,7 +42,8 @@ void RHICfSimOptions::SetInputOption(int num,char** par)
     mInputParNum = num;
     mInputPar = par;
     if(num == 2){
-        ParsingFile();
+        TString par = mInputPar[1];
+        ParsingFile(par);
     }
     else if(num > 2){
         ParsingParm();
@@ -273,10 +274,8 @@ void RHICfSimOptions::PrintOpt()
     cout << "============================================================================================" << endl;
 }
 
-void RHICfSimOptions::ParsingFile()
+void RHICfSimOptions::ParsingFile(TString par)
 {
-    TString par = mInputPar[1];
-
     if(par.Index(".txt") != -1 || par.Index(".dat") != -1 || par.Index(".par") != -1){
         std::string const file = par.Data();
         std::ifstream inputStream(file.c_str());
@@ -297,17 +296,16 @@ void RHICfSimOptions::ParsingFile()
             if(tokens->GetEntries() < 2){continue;}
             if(word[1][0] != '=' && (!(word[1][0] == '/' && word[1][1] == '/' && word[1].Sizeof() > 2) || word[1][0] != '#')){
                 AddStringByType(word[0], word[1]);
+                ParsingFile(word[1]);
             }
 
             // case2: "name" "=" "value" 
             if(tokens->GetEntries() < 3){continue;}
             if(word[1][0] == '=' && (!(word[2][0] == '/' && word[2][1] == '/' && word[2].Sizeof() > 2) || word[2][0] != '#')){
                 AddStringByType(word[0], word[2]);
+                ParsingFile(word[2]);
             }
         } 
-    }
-    else{
-
     }
 }
 
@@ -335,6 +333,7 @@ void RHICfSimOptions::ParsingParm()
                     parName = mRequiredPar[findRequiredParIdx].second;
                 }
                 AddStringByType(parName, parValue);
+                ParsingFile(parValue);
             }
             i = i+1;
         }

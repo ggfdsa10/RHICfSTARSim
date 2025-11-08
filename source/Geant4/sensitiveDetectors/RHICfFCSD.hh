@@ -28,7 +28,6 @@ public:
 private:
   /// Buffer for energy deposit
   std::vector<double> edep;
-  std::vector<std::vector<int>> primaryTrackId;
   FCHitsCollection*  hitsColl;
 };
 

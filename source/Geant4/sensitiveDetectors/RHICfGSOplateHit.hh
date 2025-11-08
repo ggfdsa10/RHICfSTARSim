@@ -13,7 +13,7 @@ class RHICfGSOplateHit: public G4VHit
 {
 public:
   RHICfGSOplateHit();
-  RHICfGSOplateHit(G4int atower, G4int aplate, G4double aedep_truth, G4double aedep, std::vector<int> primaryTrkId);
+  RHICfGSOplateHit(G4int atower, G4int aplate, G4double aedep_truth, G4double aedep);
   virtual ~RHICfGSOplateHit();
 
   /// Copy constructor & assignment operator
@@ -34,8 +34,6 @@ public:
   G4double GetEdep_truth() const {return edep_truth;}
   void SetEdep(G4double aedep) {edep=aedep;}
   G4double GetEdep() const {return edep;}
-  void SetPrimaryTrackId(std::vector<int> trkId){primaryTrackId = trkId;}
-  std::vector<int> GetPrimaryTrackId(){return primaryTrackId;}
 
   /// Methods
   virtual void Draw();
@@ -46,7 +44,6 @@ private:
   G4int plate;
   G4double edep_truth;
   G4double edep;
-  std::vector<int> primaryTrackId;
 };
 
 /////////
@@ -57,7 +54,6 @@ inline RHICfGSOplateHit::RHICfGSOplateHit(const RHICfGSOplateHit& right): G4VHit
   plate=right.plate;
   edep_truth=right.edep_truth;
   edep=right.edep;
-  primaryTrackId=right.primaryTrackId;
 }
 
 inline const RHICfGSOplateHit& RHICfGSOplateHit::operator=(const RHICfGSOplateHit& right)
@@ -66,7 +62,6 @@ inline const RHICfGSOplateHit& RHICfGSOplateHit::operator=(const RHICfGSOplateHi
   plate=right.plate;
   edep_truth=right.edep_truth;
   edep=right.edep;
-  primaryTrackId=right.primaryTrackId;
   return *this;
 }
 

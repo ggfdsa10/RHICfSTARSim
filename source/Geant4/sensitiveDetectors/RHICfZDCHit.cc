@@ -20,15 +20,13 @@ RHICfZDCHit::RHICfZDCHit(): module(-1), nphoton(-1), edep(0.)
   module=-1;
   nphoton=-1;
   edep=0.;
-  primaryTrackId.clear();
 }
 
-RHICfZDCHit::RHICfZDCHit(G4int amodule, G4int anphoton, G4double aedep, std::vector<int> primaryTrkId)
+RHICfZDCHit::RHICfZDCHit(G4int amodule, G4int anphoton, G4double aedep)
 {
   module=amodule;
   nphoton=anphoton;
   edep=aedep;
-  primaryTrackId=primaryTrkId;
 }
 
 RHICfZDCHit::~RHICfZDCHit()

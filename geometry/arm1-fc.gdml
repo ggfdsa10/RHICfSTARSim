@@ -372,6 +372,10 @@
     <position name="Pos-frontcounter-front" unit="mm" x="0" y="0" z="-164.5"/>
     <position name="Pos-frontcounter-side-l" unit="mm" x="-44.5" y="0" z="-152.5"/>
     <position name="Pos-frontcounter-side-r" unit="mm" x="+44.5" y="0" z="-152.5"/>
+
+    <!-- Truth Counter (Not real material and detector) -->
+    <position name="Pos-TruthCounter-small" unit="mm" x="0" y="-80.226" z="-125"/>
+    <position name="Pos-TruthCounter-large" unit="mm" x="0" y="-32.780" z="-125"/>
   </define>
 
   <!-- the content of the materials.xml file will be included here -->
@@ -1492,6 +1496,10 @@
     <box name="Log-frontcounter-front" lunit="mm" x="90" y="243" z="1"/>
     <box name="Log-frontcounter-side" lunit="mm" x="1" y="243" z="23"/>
 
+    <!-- Truth Counter (Not real material and detector) -->
+    <box name="Log-TruthCounter-small" lunit="mm" x="20" y="20" z="0.0001"/>
+    <box name="Log-TruthCounter-large" lunit="mm" x="40" y="40" z="0.0001"/>
+
     <!-- ********** -->
   </solids>
 
@@ -1985,6 +1993,16 @@
       <solidref ref="Log-frontcounter-side"/>
     </volume>
 
+    <volume name="Vol-TruthCounter-small">
+      <materialref ref="Galactic"/>
+      <solidref ref="Log-TruthCounter-small"/>
+      <auxiliary auxtype="SensDet" auxvalue="TruthCounter"/>
+    </volume>
+    <volume name="Vol-TruthCounter-large">
+      <materialref ref="Galactic"/>
+      <solidref ref="Log-TruthCounter-large"/>
+      <auxiliary auxtype="SensDet" auxvalue="TruthCounter"/>
+    </volume>
 
     <!-- ******************** -->
     <!-- *** World Volume *** -->
@@ -2237,12 +2255,12 @@
       <physvol>
         <volumeref ref="Vol-frontcounter-small"/>
         <positionref ref="Pos-frontcounter-small"/>
-	<rotationref ref="Rot-45"/>
+        <rotationref ref="Rot-45"/>
       </physvol>
       <physvol>
         <volumeref ref="Vol-frontcounter-large"/>
         <positionref ref="Pos-frontcounter-large"/>
-	<rotationref ref="Rot-45"/>
+        <rotationref ref="Rot-45"/>
       </physvol>
       <physvol>
         <volumeref ref="Vol-frontcounter-front"/>
@@ -2256,7 +2274,19 @@
         <volumeref ref="Vol-frontcounter-side"/>
         <positionref ref="Pos-frontcounter-side-r"/>
       </physvol>
+
+      <physvol>
+          <volumeref ref="Vol-TruthCounter-small"/>
+          <positionref ref="Pos-TruthCounter-small"/>
+          <rotationref ref="Rot-45"/>
+      </physvol>
+      <physvol>
+          <volumeref ref="Vol-TruthCounter-large"/>
+          <positionref ref="Pos-TruthCounter-large"/>
+          <rotationref ref="Rot-45"/>
+      </physvol>
     </volume>
+
   </structure>
 
   <setup name="arm1" version="1.0">

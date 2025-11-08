@@ -1,14 +1,20 @@
-Mode        = STARSim
-InputFile   = /test/
-#RunType     = TS
+Mode        = SingleGen
+RunType     = TL
+EventNum    = 10000
+OutPath     = /star/u/slee5/singleGenNeutron_zdc/
+OutputName  = n200GeV_3
+
+# For SingleGen mode: input to primary single particle information 
+PDG = 2112
+Energy = 200. # GeV
+
+
 #GeometryDir = /home/shlee/workspace/testRHICfSim/RHICfSim-v10/geometry # If GeometryDir doesn't set, dir path will found autometically. 
 #TableDir    = /home/shlee/workspace/testRHICfSim/RHICfSim-v10/tables   # If TableDir doesn't set, dir path will found autometically. 
-# EventNum    = 2 # If EventNum no set, StRHICfSimDSt.root file's number of event will set. 
-#OutFilePath = /path/to/your/saved/outfile
 
 
-# Mode : STARSim (Star simulation input), HepMC (HepMC txt file input) 
+# Mode : STARSim (Star simulation input), SingleGen (HepMC txt file input) 
 # RunType : TS, TL, TOP
 # EventNum : Specific event number or set to -1 (total event number in input file)
-# OutFilePath : Set the output file path
+# OutPath : Set the output file path
 # you can add additional options 

@@ -35,22 +35,20 @@ void RHICfGSObarSD::Initialize(G4HCofThisEvent* HCTE)
   /// Clear energy deposit buffer
   edep.clear();
   edep_truth.clear();
-  primaryTrackId.clear();
   edep.resize(nside);
   edep_truth.resize(ntower);
-  primaryTrackId.resize(ntower);
+
   for(int itower=0; itower<ntower; itower++) {
     edep[itower].resize(nbelt);
     edep_truth[itower].resize(nbelt);
-    primaryTrackId[itower].resize(nbelt);
+
     for(int ibelt=0; ibelt<nbelt; ibelt++) {
       edep[itower][ibelt].resize(nxy);
       edep_truth[itower][ibelt].resize(nxy);
-      primaryTrackId[itower][ibelt].resize(nxy);
+
       for(int ixy=0; ixy<nxy; ixy++) {
         edep[itower][ibelt][ixy].resize(nbar[itower]);
         edep_truth[itower][ibelt][ixy].resize(nbar[itower]);
-        primaryTrackId[itower][ibelt][ixy].resize(nbar[itower]);
       }
     }
   }
@@ -91,13 +89,7 @@ G4bool RHICfGSObarSD::ProcessHits(G4Step* astep, G4TouchableHistory*)
 
   edep_truth[itower][ibelt][ixy][ibar]+=astep->GetTotalEnergyDeposit();
   edep[itower][ibelt][ixy][ibar] +=astep->GetTotalEnergyDeposit()*gatt[itower][ibelt][ixy][ibar]->Eval(localx);
-
-  G4Track* track = astep -> GetTrack();
-  if(track->GetParentID() == 0){
-    int trackId = track -> GetTrackID();
-    primaryTrackId[itower][ibelt][ixy][ibar].push_back(trackId);
-  }
-
+  
   return true;
 }
 
@@ -110,7 +102,7 @@ void RHICfGSObarSD::EndOfEvent(G4HCofThisEvent* )
     for(int ibelt=0; ibelt<nbelt; ibelt++) {
       for(int ixy=0; ixy<nxy; ixy++) {
         for(int ibar=0; ibar<nbar[itower]; ibar++) {
-          RHICfGSObarHit* ahit=new RHICfGSObarHit(itower, ibelt, ixy, ibar, edep[itower][ibelt][ixy][ibar], edep_truth[itower][ibelt][ixy][ibar], primaryTrackId[itower][ibelt][ixy][ibar]);
+          RHICfGSObarHit* ahit=new RHICfGSObarHit(itower, ibelt, ixy, ibar, edep[itower][ibelt][ixy][ibar], edep_truth[itower][ibelt][ixy][ibar]);
           hitsColl->insert(ahit);
         }
       }

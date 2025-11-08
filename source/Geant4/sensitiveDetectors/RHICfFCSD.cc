@@ -36,9 +36,7 @@ void RHICfFCSD::Initialize(G4HCofThisEvent* HCTE)
 
   /// Clear energy deposit buffer
   edep.clear();
-  primaryTrackId.clear();
   edep.resize(ntower);
-  primaryTrackId.resize(ntower);
 }
 
 //////////
@@ -54,12 +52,6 @@ G4bool RHICfFCSD::ProcessHits(G4Step* astep, G4TouchableHistory*)
   /// Accumulate energy deposit in each scintillator
   edep[itower]+=astep->GetTotalEnergyDeposit()/CLHEP::MeV;
 
-  G4Track* track = astep -> GetTrack();
-  if(track->GetParentID() == 0){
-    int trackId = track -> GetTrackID();
-    primaryTrackId[itower].push_back(trackId);
-  }
-
   return true;
 }
 
@@ -69,7 +61,7 @@ void RHICfFCSD::EndOfEvent(G4HCofThisEvent* )
 {
   /// Make hits and push them to "Hit Coleltion"
   for(int itower=0; itower<ntower; itower++) {
-    RHICfFCHit* ahit=new RHICfFCHit(itower, edep[itower], primaryTrackId[itower]);
+    RHICfFCHit* ahit=new RHICfFCHit(itower, edep[itower]);
     hitsColl->insert(ahit);
   }
 }

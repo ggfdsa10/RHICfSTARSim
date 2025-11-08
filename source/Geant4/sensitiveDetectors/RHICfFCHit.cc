@@ -19,11 +19,10 @@ RHICfFCHit::RHICfFCHit(): tower(-1), edep(0.)
 {
 }
 
-RHICfFCHit::RHICfFCHit(G4int atower, G4double aedep, std::vector<int> primaryTrkId)
+RHICfFCHit::RHICfFCHit(G4int atower, G4double aedep)
 {
   tower=atower;
   edep=aedep;
-  primaryTrackId=primaryTrkId;
 }
 
 RHICfFCHit::~RHICfFCHit()

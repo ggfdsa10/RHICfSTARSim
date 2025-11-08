@@ -21,16 +21,14 @@ RHICfGSOplateHit::RHICfGSOplateHit(): tower(-1), plate(-1), edep_truth(0.), edep
   plate=-1;
   edep_truth=0.;
   edep=0.;
-  primaryTrackId.clear();
 }
 
-RHICfGSOplateHit::RHICfGSOplateHit(G4int atower, G4int aplate, G4double aedep_truth, G4double aedep, std::vector<int> primaryTrkId)
+RHICfGSOplateHit::RHICfGSOplateHit(G4int atower, G4int aplate, G4double aedep_truth, G4double aedep)
 {
   tower=atower;
   plate=aplate;
   edep_truth=aedep_truth;
   edep=aedep;
-  primaryTrackId=primaryTrkId;
 }
 
 RHICfGSOplateHit::~RHICfGSOplateHit()

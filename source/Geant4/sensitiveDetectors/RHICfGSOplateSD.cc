@@ -36,14 +36,14 @@ void RHICfGSOplateSD::Initialize(G4HCofThisEvent* HCTE)
   /// Clear energy deposit buffer
   edep.clear();
   edep_truth.clear();
-  primaryTrackId.clear();
+
   edep.resize(ntower);
   edep_truth.resize(ntower);
-  primaryTrackId.resize(ntower);
+
   for(int itower=0; itower<ntower; itower++) {
     edep[itower].resize(nplate);
     edep_truth[itower].resize(nplate);
-    primaryTrackId[itower].resize(nplate);
+
   }
 
 }
@@ -74,12 +74,6 @@ G4bool RHICfGSOplateSD::ProcessHits(G4Step* astep, G4TouchableHistory*)
   /// Rotate -90degrees
   edep[itower][iplate]+=astep->GetTotalEnergyDeposit()*gmap[itower][iplate]->Interpolate(localy,-localx);
 
-  G4Track* track = astep -> GetTrack();
-  if(track->GetParentID() == 0){
-    int trackId = track -> GetTrackID();
-    primaryTrackId[itower][iplate].push_back(trackId);
-  }
-
   return true;
 }
 
@@ -90,7 +84,7 @@ void RHICfGSOplateSD::EndOfEvent(G4HCofThisEvent* )
   /// Make hits and push them to "Hit Coleltion"
   for(int itower=0; itower<ntower; itower++) {
     for(int iplate=0; iplate<nplate; iplate++) {
-      RHICfGSOplateHit* ahit=new RHICfGSOplateHit(itower, iplate, edep_truth[itower][iplate], edep[itower][iplate], primaryTrackId[itower][iplate]);
+      RHICfGSOplateHit* ahit=new RHICfGSOplateHit(itower, iplate, edep_truth[itower][iplate], edep[itower][iplate]);
       hitsColl->insert(ahit);
     }
   }

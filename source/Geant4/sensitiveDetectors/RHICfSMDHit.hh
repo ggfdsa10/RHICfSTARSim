@@ -13,7 +13,7 @@ class RHICfSMDHit: public G4VHit
 {
 public:
   RHICfSMDHit();
-  RHICfSMDHit(G4int axy, G4int asmd, G4double aedep, std::vector<int> primaryTrkId);
+  RHICfSMDHit(G4int axy, G4int asmd, G4double aedep);
   virtual ~RHICfSMDHit();
 
   /// Copy constructor & assignment operator
@@ -32,8 +32,6 @@ public:
   G4int GetSMD() const {return smd;}
   void SetEdep(G4double aedep) {edep=aedep;}
   G4double GetEdep() const {return edep;}
-  void SetPrimaryTrackId(std::vector<int> primaryTrkId){primaryTrackId=primaryTrkId;}
-  std::vector<int> GetPrimaryTrackId(){return primaryTrackId;}
 
   /// Methods
   virtual void Draw();
@@ -43,7 +41,6 @@ private:
   G4int xy;
   G4int smd;
   G4double edep;
-  std::vector<int> primaryTrackId;
 };
 
 /////////
@@ -53,7 +50,6 @@ inline RHICfSMDHit::RHICfSMDHit(const RHICfSMDHit& right): G4VHit()
   xy=right.xy;
   smd=right.smd;
   edep=right.edep;
-  primaryTrackId=right.primaryTrackId;
 }
 
 inline const RHICfSMDHit& RHICfSMDHit::operator=(const RHICfSMDHit& right)
@@ -61,7 +57,6 @@ inline const RHICfSMDHit& RHICfSMDHit::operator=(const RHICfSMDHit& right)
   xy=right.xy;
   smd=right.smd;
   edep=right.edep;
-  primaryTrackId=right.primaryTrackId;
   return *this;
 }
 

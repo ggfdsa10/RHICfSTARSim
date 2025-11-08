@@ -1,17 +1,17 @@
-    #ifndef LHCFRUNACTION_H
-    #define LHCFRUNACTION_H 1
+#ifndef RHICFRUNACTION_H
+#define RHICFRUNACTION_H 1
 
-    #include "G4UserRunAction.hh"
-    #include "G4String.hh"
-    #include "globals.hh"
+#include "G4UserRunAction.hh"
+#include "G4String.hh"
+#include "globals.hh"
 
-    #include "TROOT.h"
-    #include "TFile.h"
-    #include "TTree.h"
-    #include "TString.h"
+#include "TROOT.h"
+#include "TFile.h"
+#include "TTree.h"
+#include "TString.h"
 
-    #include "StRHICfSimDst.h"
-    #include "RHICfSimUtil.hh"
+#include "StRHICfSimDst.h"
+#include "RHICfSimUtil.hh"
 
 class G4Run;
 class RHICfRunAction: public G4UserRunAction

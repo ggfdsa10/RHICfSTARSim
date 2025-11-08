@@ -27,7 +27,6 @@ class RHICfSimOptions
         void AddOpt(TString name, double value);
         void AddOpt(TString name, bool value);
         void AddOpt(TString name, TString value);
-        // void AddOpt(TString name, const char* value){AddOpt(name, TString(value));}
 
         int GetOptInt(TString name);
         double GetOptDouble(TString name);
@@ -39,7 +38,7 @@ class RHICfSimOptions
     private:
         void PrintOpt();
 
-        void ParsingFile();
+        void ParsingFile(TString par);
         void ParsingParm();
         void AddStringByType(TString name, TString val);
         TString GetDirPath(TString type);

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE gdml [ 
-<!ENTITY gwd "./">
+<!ENTITY gwd "/direct/star+u/slee5/RHICfSTARSim/geometry">
 <!ENTITY materials SYSTEM "materials.xml">
 ]>
 <gdml xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="GDML_3_1_4/schema/gdml.xsd">
@@ -37,15 +37,15 @@
       <solidref ref="Log-world"/>
       <physvol>
         <file name="&gwd;/pipe_star.gdml"/>
-	<positionref ref="Pos-world"/>
+        <positionref ref="Pos-world"/>
       </physvol>
       <physvol>
         <file name="&gwd;/arm1-fc.gdml"/>
-	<positionref ref="Pos-LHCf"/>
+        <positionref ref="Pos-LHCf"/>
       </physvol>
       <physvol>
         <file name="&gwd;/zdc_star.gdml"/>
-	<positionref ref="Pos-ZDC"/>
+        <positionref ref="Pos-ZDC"/>
       </physvol>
     </volume>
   </structure>

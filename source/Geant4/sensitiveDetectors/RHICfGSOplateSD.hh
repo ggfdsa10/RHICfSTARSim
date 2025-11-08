@@ -37,7 +37,6 @@ private:
   /// Buffer for energy deposit
   std::vector<std::vector<double> > edep_truth;
   std::vector<std::vector<double> > edep;
-  std::vector<std::vector<std::vector<int>> > primaryTrackId;
   GSOplateHitsCollection*  hitsColl;
 
   TFile* fmap;

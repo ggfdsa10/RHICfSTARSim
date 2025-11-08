@@ -27,6 +27,8 @@
 #include "RHICfGSOplateSD.hh"
 #include "RHICfGSObarSD.hh"
 #include "RHICfFCSD.hh"
+#include "RHICfTruthCounterSD.hh"
+#include "RHICfZDCTruthCounterSD.hh"
 #include "RHICfZDCSD.hh"
 #include "RHICfSMDSD.hh"
 
@@ -111,6 +113,10 @@ G4VPhysicalVolume* RHICfDetectorConstruction::Construct()
     if((*it)->GetName()=="Vol-smdv_PV") (*it)->SetCopyNo(ismdv++);
     if((*it)->GetName()=="Vol-fcsc_PV") (*it)->SetCopyNo(0);
     if((*it)->GetName()=="Vol-rcsc_PV") (*it)->SetCopyNo(1);
+
+    /// Truth Particle Counter (not real detector)
+    if((*it)->GetName()=="Vol-TruthCounter-small_PV") (*it)->SetCopyNo(0);
+    if((*it)->GetName()=="Vol-TruthCounter-large_PV") (*it)->SetCopyNo(1);
   }
 
 
@@ -125,6 +131,9 @@ G4VPhysicalVolume* RHICfDetectorConstruction::Construct()
   RHICfFCSD* FCSD = new RHICfFCSD("FC");
   SDman->AddNewDetector(FCSD);
 
+  RHICfTruthCounterSD* truthCounterSD = new RHICfTruthCounterSD("TruthCounter");
+  SDman->AddNewDetector(truthCounterSD);
+
   RHICfZDCSD* ZDCSD = new RHICfZDCSD("ZDC");
   ZDCSD->SetTables(tablePath);
   SDman->AddNewDetector(ZDCSD);
@@ -138,6 +147,9 @@ G4VPhysicalVolume* RHICfDetectorConstruction::Construct()
   }
   RHICfSMDSD* SMDSD = new RHICfSMDSD("SMD");
   SDman->AddNewDetector(SMDSD);
+
+  RHICfZDCTruthCounterSD* zdcTruthCounterSD = new RHICfZDCTruthCounterSD("ZDCTruthCounter");
+  SDman->AddNewDetector(zdcTruthCounterSD);
 
 
   //////////

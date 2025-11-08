@@ -35,12 +35,10 @@ void RHICfSMDSD::Initialize(G4HCofThisEvent* HCTE)
 
   /// Clear energy deposit buffer
   edep.clear();
-  primaryTrackId.clear();
   edep.resize(nxy);
-  primaryTrackId.resize(nxy);
+
   for(int ixy=0; ixy<nxy; ixy++){ 
     edep[ixy].resize(nsmd[ixy]);
-    primaryTrackId[ixy].resize(nsmd[ixy]);
   }
 }
 
@@ -76,12 +74,6 @@ G4bool RHICfSMDSD::ProcessHits(G4Step* astep, G4TouchableHistory*)
   /// Accumulate energy deposit in each scintillator
   edep[ixy][ismd]+=astep->GetTotalEnergyDeposit();
 
-  G4Track* track = astep -> GetTrack();
-  if(track->GetParentID() == 0){
-    int trackId = track -> GetTrackID();
-    primaryTrackId[ixy][ismd].push_back(trackId);
-  }
-
   return true;
 }
 
@@ -92,7 +84,7 @@ void RHICfSMDSD::EndOfEvent(G4HCofThisEvent* )
   /// Make hits and push them to "Hit Coleltion"
   for(int ixy=0; ixy<nxy; ixy++) {
     for(int ismd=0; ismd<nsmd[ixy]; ismd++) {
-      RHICfSMDHit* ahit=new RHICfSMDHit(ixy, ismd, edep[ixy][ismd], primaryTrackId[ixy][ismd]);
+      RHICfSMDHit* ahit=new RHICfSMDHit(ixy, ismd, edep[ixy][ismd]);
       hitsColl->insert(ahit);
     }
   }

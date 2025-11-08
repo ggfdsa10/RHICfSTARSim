@@ -13,7 +13,7 @@ class RHICfZDCHit: public G4VHit
 {
 public:
   RHICfZDCHit();
-  RHICfZDCHit(G4int amodule, G4int anphoton, G4double aedep, std::vector<int> primaryTrkId);
+  RHICfZDCHit(G4int amodule, G4int anphoton, G4double aedep);
   virtual ~RHICfZDCHit();
 
   /// Copy constructor & assignment operator
@@ -32,8 +32,6 @@ public:
   G4int GetNphoton() const {return nphoton;}
   void SetEdep(G4double aedep) {edep=aedep;}
   G4double GetEdep() const {return edep;}
-  void SetPrimaryTrackId(std::vector<int> primaryTrkId){primaryTrackId=primaryTrkId;}
-  std::vector<int> GetPrimaryTrackId(){return primaryTrackId;}
 
   /// Methods
   virtual void Draw();
@@ -43,7 +41,6 @@ private:
   G4int module;
   G4int nphoton;
   G4double edep;
-  std::vector<int> primaryTrackId;
 };
 
 /////////
@@ -53,7 +50,6 @@ inline RHICfZDCHit::RHICfZDCHit(const RHICfZDCHit& right): G4VHit()
   module=right.module;
   nphoton=right.nphoton;
   edep=right.edep;
-  primaryTrackId=right.primaryTrackId;
 }
 
 inline const RHICfZDCHit& RHICfZDCHit::operator=(const RHICfZDCHit& right)
@@ -61,7 +57,6 @@ inline const RHICfZDCHit& RHICfZDCHit::operator=(const RHICfZDCHit& right)
   module=right.module;
   nphoton=right.nphoton;
   edep=right.edep;
-  primaryTrackId=right.primaryTrackId;
   return *this;
 }
 

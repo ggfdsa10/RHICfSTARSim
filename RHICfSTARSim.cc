@@ -8,6 +8,7 @@
 #include "RHICfRunAction.hh"
 #include "RHICfEventAction.hh"
 #include "RHICfTrackingAction.hh"
+#include "RHICfSteppingAction.hh"
 
 #include "RHICfSimPar.hh"
 #include "RHICfSimUtil.hh"
@@ -56,11 +57,13 @@ int main(int argc,char** argv)
     RHICfPrimaryGeneratorAction* genAction = new RHICfPrimaryGeneratorAction();
     G4UserEventAction* eventAction = new RHICfEventAction();
     G4UserTrackingAction* trackAction = new RHICfTrackingAction();
+    G4UserSteppingAction* stepAction = new RHICfSteppingAction();
 
     runManager->SetUserAction(runAction);
     runManager->SetUserAction(genAction);
     runManager->SetUserAction(eventAction);
     runManager->SetUserAction(trackAction);
+    runManager->SetUserAction(stepAction);
 
     // Initialize G4 kernel
     runManager->Initialize();

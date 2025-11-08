@@ -1,6 +1,7 @@
 #ifndef RHICFEVENTACTION_H
 #define RHICFEVENTACTION_H 1
 
+#include <iostream>
 #include <vector>
 
 #include "G4RunManager.hh"
@@ -46,7 +47,14 @@ class RHICfEventAction: public G4UserEventAction
         void SetOutputSimDstTree(TTree* tree){fOutputTree = tree;}
         void SetSimDst(StRHICfSimDst* simDst){fSimDst = simDst;}
 
+        void SetRHICfMatchTrkID(int tower, int simTrkID, int g4TrkID);
+        void SetZDCMatchTrkID(int simTrkID, int g4TrkID);
+
     private:
+        bool IsShowerTrigger();
+        bool IsType1Pi0Trigger();
+        bool IsHighEMTrigger();
+
         void EventPrint();
 
         G4HCofThisEvent* fHitCollThisEvent;
@@ -54,9 +62,6 @@ class RHICfEventAction: public G4UserEventAction
         G4SDManager* fSDManager;
 
         RHICfPrimaryGeneratorAction* fGenAction;
-
-        vector<int> fRHICfPrimaryNum[ntower];
-        vector<int> fZDCPrimaryNum;
 
         // Hit Collection
         FCHitsCollection* fRHICfFCHitColl;

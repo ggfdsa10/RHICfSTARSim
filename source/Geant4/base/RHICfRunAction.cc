@@ -57,6 +57,26 @@ void RHICfRunAction::BeginOfRunAction(const G4Run* aRun)
 
 		trackingAction -> SetSimDst(fSimDst);
 	}
+	else if(fSimUtil->IsSingleGenMode()){
+		TString outputFileName = "";
+		if(fSimOpt -> CheckOpt("OUTPUTNAME")){outputFileName = fSimOpt -> GetOptString("OUTPUTNAME");}
+		TString outputFilePath = fSimOpt -> GetOptString("OUTPATH");
+		if(outputFilePath[outputFilePath.Sizeof()-1] != '/'){outputFilePath = outputFilePath + "/";}
+		TString runTypeName = fSimOpt -> GetOptString("RUNTYPE");
+
+		TString outputName = outputFilePath + "SingleGen_"+ runTypeName + "_"  + outputFileName + ".rhicfsim.RHICfSimDst.root";
+
+		fOutSimDstFile = new TFile(outputName, "RECREATE");
+		fOutSimDstTree = new TTree("StRHICfSimDst", "StRHICfSimDst");
+
+		fSimDst = new StRHICfSimDst();
+		fSimDst -> CreateDstArray(fOutSimDstTree);
+		
+		genAction -> SetSimDst(fSimDst);
+		eventAction -> SetOutputSimDstTree(fOutSimDstTree);
+		eventAction -> SetSimDst(fSimDst);
+		trackingAction -> SetSimDst(fSimDst);
+	}
 	else{
 		// To be updated for HepMC mode...
 	}

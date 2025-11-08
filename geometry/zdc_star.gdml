@@ -444,6 +444,10 @@
     <!-- Scintillator plates -->
     <position name="Pos-fcsc" unit="cm" x="0" y="fc1-4/sin45" z="-lmod*3-smd1/sin45-lmod/2-19.05"/>
     <position name="Pos-rcsc" unit="cm" x="0" y="rc1-4/sin45" z="lmod*3+lmod/2"/>
+
+    <!-- ZDCTruthCounter (Not real material and detector) -->
+    <position name="Pos-ZDCTruthCounter" unit="cm" x="0" y="iply+0.05" z="-iplz+iply-38.5"/>
+
   </define>
 
   <!-- the content of the materials.xml file will be included here -->
@@ -571,6 +575,9 @@
     <!-- Scintillator plates -->
     <box name="Log-fcsc" lunit="cm" x="fc0*2.0" y="fc1*2.0" z="fc2*2.0"/>
     <box name="Log-rcsc" lunit="cm" x="rc0*2.0" y="rc1*2.0" z="rc2*2.0"/>
+
+    <!-- ZDCTruthCounter (Not real material and detector) -->
+    <box name="Log-ZDCTruthCounter" lunit="cm" x="wpl0*2.0" y="wpl1*2.0" z="wpl2*2.0"/>
   </solids>
 
 
@@ -592,6 +599,13 @@
       <solidref ref="Log-fibr"/>
       <auxiliary auxtype="SensDet" auxvalue="ZDC"/>
     </volume>
+
+    <volume name="Vol-ZDCTruthCounter">
+      <materialref ref="Galactic"/>
+      <solidref ref="Log-ZDCTruthCounter"/>
+      <auxiliary auxtype="SensDet" auxvalue="ZDCTruthCounter"/>
+    </volume>
+
     <volume name="Vol-gapf">
       <materialref ref="Air"/>
       <solidref ref="Log-gapf"/>
@@ -2035,6 +2049,14 @@
         <positionref ref="Pos-rcsc"/>
       </physvol>
 -->
+
+      <!-- ZDCTruthCounter (Not real material and detector) -->
+      <physvol>
+        <volumeref ref="Vol-ZDCTruthCounter"/>
+        <positionref ref="Pos-ZDCTruthCounter"/>
+        <rotationref ref="Rot-45"/>
+      </physvol>
+
     </volume>
   </structure>
 

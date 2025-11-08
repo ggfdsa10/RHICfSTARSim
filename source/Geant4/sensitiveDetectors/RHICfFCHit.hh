@@ -13,7 +13,7 @@ class RHICfFCHit: public G4VHit
 {
 public:
   RHICfFCHit();
-  RHICfFCHit(G4int atower, G4double aedep, std::vector<int> primaryTrkId);
+  RHICfFCHit(G4int atower, G4double aedep);
   virtual ~RHICfFCHit();
 
   /// Copy constructor & assignment operator
@@ -30,8 +30,6 @@ public:
   G4int GetTower() const {return tower;}
   void SetEdep(G4double aedep) {edep=aedep;}
   G4double GetEdep() const {return edep;}
-  void SetPrimaryTrackId(std::vector<int> primaryTrkId){primaryTrackId=primaryTrkId;}
-  std::vector<int> GetPrimaryTrackId(){return primaryTrackId;}
 
   /// Methods
   virtual void Draw();
@@ -40,7 +38,6 @@ public:
 private:
   G4int tower;
   G4double edep;
-  std::vector<int> primaryTrackId;
 };
 
 /////////
@@ -49,14 +46,12 @@ inline RHICfFCHit::RHICfFCHit(const RHICfFCHit& right): G4VHit()
 {
   tower=right.tower;
   edep=right.edep;
-  primaryTrackId=right.primaryTrackId;
 }
 
 inline const RHICfFCHit& RHICfFCHit::operator=(const RHICfFCHit& right)
 {
   tower=right.tower;
   edep=right.edep;
-  primaryTrackId=right.primaryTrackId;
   return *this;
 }
 

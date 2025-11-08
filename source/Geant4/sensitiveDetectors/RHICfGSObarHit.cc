@@ -23,10 +23,9 @@ RHICfGSObarHit::RHICfGSObarHit()
   bar=-1;
   edep_truth=0.;
   edep=0.;
-  primaryTrackId.clear();
 }
 
-RHICfGSObarHit::RHICfGSObarHit(G4int atower, G4int abelt, G4int axy, G4int abar, G4double aedep_truth, G4double aedep, std::vector<int> primaryTrkId)
+RHICfGSObarHit::RHICfGSObarHit(G4int atower, G4int abelt, G4int axy, G4int abar, G4double aedep_truth, G4double aedep)
 {
   tower=atower;
   belt=abelt;
@@ -34,7 +33,6 @@ RHICfGSObarHit::RHICfGSObarHit(G4int atower, G4int abelt, G4int axy, G4int abar,
   bar=abar;
   edep_truth=aedep_truth;
   edep=aedep;
-  primaryTrackId=primaryTrkId;
 }
 
 RHICfGSObarHit::~RHICfGSObarHit()

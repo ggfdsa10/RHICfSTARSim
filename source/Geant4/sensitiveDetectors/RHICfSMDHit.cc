@@ -19,12 +19,11 @@ RHICfSMDHit::RHICfSMDHit(): xy(-1), smd(-1), edep(0.)
 {
 }
 
-RHICfSMDHit::RHICfSMDHit(G4int axy, G4int asmd, G4double aedep, std::vector<int> primaryTrkId)
+RHICfSMDHit::RHICfSMDHit(G4int axy, G4int asmd, G4double aedep)
 {
   xy=axy;
   smd=asmd;
   edep=aedep;
-  primaryTrackId=primaryTrkId;
 }
 
 RHICfSMDHit::~RHICfSMDHit()

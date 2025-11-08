@@ -13,7 +13,7 @@ class RHICfGSObarHit: public G4VHit
 {
 public:
   RHICfGSObarHit();
-  RHICfGSObarHit(G4int atower, G4int abelt, G4int axy, G4int abar, G4double aedep_truth, G4double aedep, std::vector<int> primaryTrkId);
+  RHICfGSObarHit(G4int atower, G4int abelt, G4int axy, G4int abar, G4double aedep_truth, G4double aedep);
   virtual ~RHICfGSObarHit();
 
   /// Copy constructor & assignment operator
@@ -38,9 +38,7 @@ public:
   G4double GetEdep_truth() const {return edep_truth;}
   void SetEdep(G4double aedep) {edep=aedep;}
   G4double GetEdep() const {return edep;}
-  void SetPrimaryTrackId(std::vector<int> primaryTrkId){primaryTrackId=primaryTrkId;}
-  std::vector<int> GetPrimaryTrackId(){return primaryTrackId;}
-
+  
   /// Methods
   virtual void Draw();
   virtual void Print();
@@ -52,7 +50,6 @@ private:
   G4int bar;
   G4double edep_truth;
   G4double edep;
-  std::vector<int> primaryTrackId;
 };
 
 /////////
@@ -65,7 +62,6 @@ inline RHICfGSObarHit::RHICfGSObarHit(const RHICfGSObarHit& right): G4VHit()
   bar=right.bar;
   edep=right.edep;
   edep_truth=right.edep_truth;
-  primaryTrackId=right.primaryTrackId;
 }
 
 inline const RHICfGSObarHit& RHICfGSObarHit::operator=(const RHICfGSObarHit& right)
@@ -76,7 +72,6 @@ inline const RHICfGSObarHit& RHICfGSObarHit::operator=(const RHICfGSObarHit& rig
   bar=right.bar;
   edep=right.edep;
   edep_truth=right.edep_truth;
-  primaryTrackId=right.primaryTrackId;
   return *this;
 }
 

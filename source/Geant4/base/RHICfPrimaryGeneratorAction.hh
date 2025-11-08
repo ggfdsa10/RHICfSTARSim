@@ -18,6 +18,7 @@
 
 #include "RHICfRunAction.hh"
 
+#include "RHICfSimUtil.hh"
 #include "StRHICfSimDst.h"
 #include "StRHICfSimEvent.h"
 #include "StRHICfSimTrack.h"
@@ -35,9 +36,16 @@ class RHICfPrimaryGeneratorAction : public G4VUserPrimaryGeneratorAction
         void SetInputSimDstTree(TTree* tree){fInputTree = tree;}
         void SetSimDst(StRHICfSimDst* simDst){fSimDst = simDst;}
         
-        std::vector<int> GetParSimTrkIdxArray(){return fParSimTrkIdx;}
+        int GetGenerateTrkNum();
+        int GetGenerateSimTrkID(int trackID);
 
     private:
+        void ReadSimDstParticle(G4Event* anEvent);
+        void CreateSingleGen(G4Event* anEvent);
+
+        RHICfSimUtil* fSimUtil;
+        RHICfSimOptions* fSimOpt;
+
         G4ParticleGun* fParticleGun;
 
         G4RunManager* fRunManager;
@@ -47,9 +55,10 @@ class RHICfPrimaryGeneratorAction : public G4VUserPrimaryGeneratorAction
 
         TTree* fInputTree;
         StRHICfSimDst* fSimDst;
+        StRHICfSimEvent* fSimEvent;
         StRHICfSimTrack* fSimTrack;
 
-        std::vector<int> fParSimTrkIdx;
+        std::vector<int> fGenSimTrkID;
 
 };
 

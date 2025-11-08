@@ -38,7 +38,6 @@ private:
   std::vector<int> nphoton;
   std::vector<double> nphoton2;
   std::vector<double> edep;
-  std::vector<std::vector<int>> primaryTrackId;
   ZDCHitsCollection*  hitsColl;
 
   G4double fiberlength;

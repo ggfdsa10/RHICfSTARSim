@@ -25,22 +25,24 @@ void RHICfEventAction::EndOfEventAction(const G4Event* evt)
 
     fGenAction = (RHICfPrimaryGeneratorAction*)fRunManager->GetUserPrimaryGeneratorAction();
 
-    // For finding the number of incident particle which are deposited in detector medium
-    vector<int> parSimTrkIdxArr = fGenAction -> GetParSimTrkIdxArray();
-    fRHICfPrimaryNum[0].clear();
-    fRHICfPrimaryNum[1].clear();
-    fRHICfPrimaryNum[0].resize(parSimTrkIdxArr.size());
-    fRHICfPrimaryNum[1].resize(parSimTrkIdxArr.size());
-
-    fZDCPrimaryNum.clear();
-    fZDCPrimaryNum.resize(parSimTrkIdxArr.size());
-
     // Assign the StRHICfSimEvent
     fSimEvent = fSimDst -> GetSimEvent();
 
+    if(fSimUtil -> IsSingleGenMode()){
+        fSimEvent -> SetEventNumber(evt->GetEventID()+1);
+        fSimEvent -> SetGenFinalParNum(1);
+        fSimEvent -> SetPrimaryTrkNum(1);
+
+        TString runTypeName = fSimOpt->GetOptString("RUNTYPE");
+        int runType = -1;
+        if(runTypeName =="TL"){runType = rTLtype;}
+        if(runTypeName =="TS"){runType = rTStype;}
+        if(runTypeName =="TOP"){runType = rTOPtype;}
+        fSimEvent -> SetRHICfRunType(runType);
+    }
+
     // ================ RHICf Sensitive detectors ================
     fSimRHICfHit = fSimDst -> GetSimRHICfHit();
-    fSimRHICfHit -> Clear();
 
     // RHICf Forward Counter 
     G4int idRHICfFC = fSDManager->GetCollectionID("FC");
@@ -50,16 +52,6 @@ void RHICfEventAction::EndOfEventAction(const G4Event* evt)
         double edep = (*fRHICfFCHitColl)[i]->GetEdep()/1000.; // [GeV]
 
         fSimRHICfHit -> SetFCdE(towerIdx, edep);
-
-        if(fRHICfPrimaryNum[towerIdx].size() == 0){continue;}
-        vector<int> primaryTrkId = (*fRHICfFCHitColl)[i]->GetPrimaryTrackId();
-        for(int par=0; par<primaryTrkId.size(); par++){
-            int trkId = primaryTrkId[par] -1;
-
-            if(trkId < fRHICfPrimaryNum[towerIdx].size()){
-                fRHICfPrimaryNum[towerIdx][trkId] += 1;
-            }
-        }
     }
 
     // RHICf GSO Plate
@@ -71,16 +63,6 @@ void RHICfEventAction::EndOfEventAction(const G4Event* evt)
         double edep = (*fRHICfGSOPlateHitColl)[i]->GetEdep()/1000.; // [GeV]
 
         fSimRHICfHit -> SetPlatedE(towerIdx, plateIdx, edep);
-
-        if(fRHICfPrimaryNum[towerIdx].size() == 0){continue;}
-        vector<int> primaryTrkId = (*fRHICfGSOPlateHitColl)[i]->GetPrimaryTrackId();
-        for(int par=0; par<primaryTrkId.size(); par++){
-            int trkId = primaryTrkId[par] -1;
-
-            if(trkId < fRHICfPrimaryNum[towerIdx].size()){
-                fRHICfPrimaryNum[towerIdx][trkId] += 1;
-            }
-        }
     }
 
     // RHICf GSO Bar
@@ -94,32 +76,10 @@ void RHICfEventAction::EndOfEventAction(const G4Event* evt)
         double edep = (*fRHICfGSOBarHitColl)[i]->GetEdep()/1000.; // [GeV]
 
         fSimRHICfHit -> SetGSOBardE(towerIdx, layerIdx, xyIdx, barIdx, edep);
-
-        if(fRHICfPrimaryNum[towerIdx].size() == 0){continue;}
-        vector<int> primaryTrkId = (*fRHICfGSOBarHitColl)[i]->GetPrimaryTrackId();
-        for(int par=0; par<primaryTrkId.size(); par++){
-            int trkId = primaryTrkId[par] -1;
-
-            if(trkId < fRHICfPrimaryNum[towerIdx].size()){
-                fRHICfPrimaryNum[towerIdx][trkId] += 1;
-            }
-        }
-    }
-
-    // RHICf truth incident particle
-    for(int tower=0; tower<ntower; tower++){
-        for(int i=0; i<fRHICfPrimaryNum[tower].size(); i++){
-            int numIncidentPar = fRHICfPrimaryNum[tower][i];
-            if(numIncidentPar == 0){continue;}
-
-            int simTrkId = parSimTrkIdxArr[i];
-            fSimRHICfHit -> SetSimTrkId(tower, simTrkId);
-        }
     }
 
     // ================ ZDC Sensitive detectors ================
     fSimZDC = fSimDst -> GetSimZDC();
-    fSimZDC -> Clear();
 
     // ZDC Modules (PMT)
     G4int idZDCModudle=fSDManager->GetCollectionID("ZDC");
@@ -131,16 +91,6 @@ void RHICfEventAction::EndOfEventAction(const G4Event* evt)
 
         fSimZDC -> SetPmtPhotonNum(moduleIdx, photonNum);
         fSimZDC -> SetPmtdE(moduleIdx, edep);
-
-        if(fZDCPrimaryNum.size() == 0){continue;}
-        vector<int> primaryTrkId = (*fZDCPMTHitColl)[i]->GetPrimaryTrackId();
-        for(int par=0; par<primaryTrkId.size(); par++){
-            int trkId = primaryTrkId[par] -1;
-
-            if(trkId < fZDCPrimaryNum.size()){
-                fZDCPrimaryNum[trkId] += 1;
-            }
-        }
     }
 
     // ZDC SMD
@@ -152,32 +102,76 @@ void RHICfEventAction::EndOfEventAction(const G4Event* evt)
         double edep = (*fZDCSMDHitColl)[i]->GetEdep()/1000.; // [GeV]
 
         fSimZDC -> SetSMDdE(xyIdx, smdIdx, edep);
-
-        if(fZDCPrimaryNum.size() == 0){continue;}
-        vector<int> primaryTrkId = (*fZDCSMDHitColl)[i]->GetPrimaryTrackId();
-        for(int par=0; par<primaryTrkId.size(); par++){
-            int trkId = primaryTrkId[par] -1;
-
-            if(trkId < fZDCPrimaryNum.size()){
-                fZDCPrimaryNum[trkId] += 1;
-            }
-        }
     }
 
-    // ZDC truth incident particle
-    for(int i=0; i<fZDCPrimaryNum.size(); i++){
-        int numIncidentPar = fZDCPrimaryNum[i];
-        if(numIncidentPar == 0){continue;}
+    // Make the RHICf trigger 
+    bool isShowerTrigger = IsShowerTrigger();
+    bool isType1Pi0Trigger = IsType1Pi0Trigger();
+    bool isHighEMTrigger = IsHighEMTrigger();
 
-        int simTrkId = parSimTrkIdxArr[i];
-        fSimZDC -> SetSimTrkId(simTrkId);
-    }
+    if(!isShowerTrigger && !isType1Pi0Trigger && !isHighEMTrigger){return;} // Not triggered
+    if(isShowerTrigger){fSimEvent -> SetIsShowerTrigger();}
+    if(isType1Pi0Trigger){fSimEvent -> SetIsType1Pi0Trigger();}
+    if(isHighEMTrigger){fSimEvent -> SetIsHighEMTrigger();}
 
     // Fill the Output SimDst Tree
     fOutputTree -> Fill();
-
     // Print the event information
     EventPrint();
+}
+
+bool RHICfEventAction::IsShowerTrigger()
+{
+    const double dEThreshold = 0.045; // [45 MeV]
+
+    for(int it=0; it<rTowerNum; it++){
+        int hitNum = 0;
+        for(int ip=0; ip<rPlateNum; ip++){
+            double de = fSimRHICfHit -> GetPlatedE(it, ip); // [GeV]
+            if(dEThreshold < de){hitNum++;}
+            else{hitNum--;}
+            if(hitNum >= 3){
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
+bool RHICfEventAction::IsType1Pi0Trigger()
+{
+    const double dEThreshold = 0.045; // [45 MeV]
+
+    int fireTower = 0;
+    for(int it=0; it<rTowerNum; it++){
+        int hitNum = 0;
+        for(int ip=0; ip<7; ip++){ // up to 6th layer 
+            double de = fSimRHICfHit -> GetPlatedE(it, ip); // [GeV]
+            if(dEThreshold < de){
+                hitNum++;
+            }
+            else{
+                hitNum--;
+            }
+            if(hitNum >= 3){
+                fireTower++;
+                break;
+            }
+        }
+    }
+    if(fireTower == 2){return true;}
+    return false;
+}
+
+bool RHICfEventAction::IsHighEMTrigger()
+{
+    const double highEMThreshold = 0.5; // [500 MeV]
+
+    for(int it=0; it<rTowerNum; it++){
+        double de = fSimRHICfHit -> GetPlatedE(it, 4); // [GeV]
+        if(de > highEMThreshold){return true;}
+    }
+    return false;
 }
 
 void RHICfEventAction::EventPrint()
@@ -188,47 +182,31 @@ void RHICfEventAction::EventPrint()
     cout << "    StRHICfSimEvent -- Process: " << procName << endl;
 
     cout << "    StRHICfSimTrack -- Primary Trk Num: " << fSimEvent -> GetPrimaryTrkNum() << ", ";
-    cout << "Propagated Trk Num: " << (fGenAction -> GetParSimTrkIdxArray()).size() << endl;
+    cout << "Propagated Trk Num: " << fGenAction -> GetGenerateTrkNum() << endl;
 
-    cout << "    RHICf deposited particle Num -- in TS: " << fSimRHICfHit -> GetSimTrkNum(0) << ", ";
-    cout << "TL: " << fSimRHICfHit -> GetSimTrkNum(1) << endl;
+    cout << "    StRHICfSimEvent -- RHICfTrigger: ";
+    if(fSimEvent -> IsShowerTrigger()){cout << " Shower, ";}
+    if(fSimEvent -> IsType1Pi0Trigger()){cout << " Type1 Pi0, ";}
+    if(fSimEvent -> IsHighEMTrigger()){cout << " High-EM, ";}
+    cout << endl;
 
-    cout << "    ZDC deposited particle Num: " << fSimZDC -> GetSimTrkNum() << endl;
-
-    // RHICf Truth data 
-    int gsoBarMaxLayer[2];
-    double gsoBarMaxE[2];
-    double plateSumE[2];
-    memset(plateSumE, 0., sizeof(plateSumE));
-    for(int itower=0; itower<ntower; itower++){
-        double tmpValue = 0.;
-        int tmpLayerIdx = -1;
-        for(int ibelt=0; ibelt<nbelt; ibelt++){
-            double sumE = 0.;
-            for(int ixy=0; ixy<nxy; ixy++){
-                for(int ibar=0; ibar<nbar[itower]; ibar++){
-                    sumE += fSimRHICfHit -> GetGSOBardE(itower, ibelt, ixy, ibar);
-                }
-            }
-            if(tmpValue < sumE){
-                tmpValue = sumE;
-                tmpLayerIdx = ibelt;
-            }
-        }
-        gsoBarMaxLayer[itower] = tmpLayerIdx;
-        gsoBarMaxE[itower] = tmpValue;
-
-        for(int iplate=0; iplate<nplate; iplate++){
-            plateSumE[itower] += fSimRHICfHit -> GetPlatedE(itower, iplate);
-        }
+    double eSumTS = 0.;
+    for(int i=0; i<fSimRHICfHit -> GetSimTrkNum(0); i++){
+        eSumTS += fSimRHICfHit->GetSimTrkIncidentEnergy(0,i);
+    }
+    double eSumTL = 0.;
+    for(int i=0; i<fSimRHICfHit -> GetSimTrkNum(1); i++){
+        eSumTL += fSimRHICfHit->GetSimTrkIncidentEnergy(1,i);
     }
 
-    cout << "    RHICf Plate Sum of Energy -- TS: " << plateSumE[0] << ", ";
-    cout << "TL: " << plateSumE[1] << endl;
-    cout << "    RHICf GSOBar Max layer -- TS: " << gsoBarMaxLayer[0] << ", ";
-    cout << "TL: " << gsoBarMaxLayer[1] << endl;
-    cout << "    RHICf GSOBar Max layer Energy -- TS: " <<  gsoBarMaxE[0] << ", ";
-    cout << "TL: " << gsoBarMaxE[1] << endl;
+    cout << "    RHICf incident track num (Sum Energy) -- in TS: " << fSimRHICfHit -> GetSimTrkNum(0) << " (" << eSumTS << " GeV), ";
+    cout << "TL: " << fSimRHICfHit -> GetSimTrkNum(1) << " (" << eSumTL << " GeV)" << endl;
+
+    double eSumZDC = 0.;
+    for(int i=0; i<fSimZDC -> GetSimTrkNum(); i++){
+        eSumZDC += fSimZDC->GetSimTrkIncidentEnergy(i);
+    }
+    cout << "    ZDC incident track num (Sum Energy): " << fSimZDC -> GetSimTrkNum() << " (" << eSumZDC << " GeV)" << endl;
 
     cout << "=======================================================================================" << endl;
 }
